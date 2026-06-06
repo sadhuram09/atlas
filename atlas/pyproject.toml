@@ -1,0 +1,74 @@
+[tool.poetry]
+name = "atlas"
+version = "0.1.0"
+description = "ATLAS — Self-healing multi-agent code assistant for DesignPro"
+authors = ["Your Name <you@example.com>"]
+readme = "README.md"
+packages = [{ include = "atlas" }]
+
+[tool.poetry.dependencies]
+python = "^3.12"
+
+# API layer
+fastapi = "^0.115"
+uvicorn = { extras = ["standard"], version = "^0.32" }
+websockets = "^13.0"
+
+# Agent contracts & validation
+pydantic = "^2.9"
+pydantic-settings = "^2.6"
+
+# LLM — openai SDK pointed at Groq's OpenAI-compatible endpoint (free)
+openai = "^1.57"
+
+# Orchestration (Phase 2+)
+langgraph = "^0.2"
+langsmith = "^0.2"
+
+# Memory / RAG (Phase 3+)
+faiss-cpu = "^1.9"
+sentence-transformers = "^3.3"
+
+# Database (Phase 2+)
+asyncpg = "^0.30"
+sqlalchemy = { extras = ["asyncio"], version = "^2.0" }
+alembic = "^1.14"
+
+# Docker (Phase 1+)
+docker = "^7.1"
+
+# Utilities
+httpx = "^0.28"
+structlog = "^24.4"
+python-dotenv = "^1.0"
+tenacity = "^9.0"
+
+[tool.poetry.group.dev.dependencies]
+pytest = "^8.3"
+pytest-asyncio = "^0.24"
+pytest-cov = "^6.0"
+httpx = "^0.28"       # for TestClient
+ruff = "^0.8"
+mypy = "^1.13"
+pre-commit = "^4.0"
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+addopts = "--cov=atlas --cov-report=term-missing -q"
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+ignore_missing_imports = true
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"

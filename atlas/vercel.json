@@ -1,0 +1,30 @@
+{
+  "version": 2,
+  "name": "atlas-frontend",
+  "builds": [
+    {
+      "src": "*.html",
+      "use": "@vercel/static"
+    }
+  ],
+  "routes": [
+    {
+      "src": "/dashboard",
+      "dest": "/designpro_atlas_world_class.html"
+    },
+    {
+      "src": "/",
+      "dest": "/designpro_helium_clone.html"
+    }
+  ],
+  "headers": [
+    {
+      "source": "/(.*)",
+      "headers": [
+        { "key": "X-Content-Type-Options", "value": "nosniff" },
+        { "key": "X-Frame-Options", "value": "DENY" },
+        { "key": "X-XSS-Protection", "value": "1; mode=block" }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,828 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+--canvas:#090909;--surface1:#141414;--surface2:#1c1c1c;
+--hairline:#262626;--hairline-soft:#1a1a1a;
+--ink:#ffffff;--ink-muted:#999999;
+--accent:#0099ff;--cyan:#64CEFB;
+--grad-violet:#6a4cf5;--grad-magenta:#d44df0;--grad-orange:#ff7a3d;--grad-coral:#ff5577;
+--success:#22c55e;
+}
+html{scroll-behavior:smooth}
+body{background:var(--canvas);color:var(--ink);font-family:'Inter',sans-serif;overflow-x:hidden;font-feature-settings:'cv11' 1,'cv05' 1,'ss03' 1}
+
+/* NAV */
+nav{position:fixed;top:0;left:0;right:0;z-index:100;height:56px;display:flex;align-items:center;justify-content:space-between;padding:0 40px;background:rgba(9,9,9,0.85);backdrop-filter:blur(20px);border-bottom:0.5px solid var(--hairline-soft)}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none}
+.nav-logo-ring{width:30px;height:30px;border-radius:50%;border:1.5px solid rgba(255,255,255,0.8);display:flex;align-items:center;justify-content:center}
+.nav-logo-dot{width:10px;height:10px;border-radius:50%;background:#fff}
+.nav-logo-text{font-size:14px;font-weight:500;color:var(--ink);letter-spacing:-0.3px}
+.nav-links{display:flex;align-items:center;gap:2px;background:rgba(255,255,255,0.04);border:0.5px solid var(--hairline);border-radius:100px;padding:4px 6px}
+.nav-link{font-size:13px;color:var(--ink-muted);text-decoration:none;padding:6px 12px;border-radius:100px;transition:all 0.15s;white-space:nowrap;display:flex;align-items:center;gap:4px}
+.nav-link:hover{color:var(--ink);background:rgba(255,255,255,0.08)}
+.nav-cta{display:flex;gap:8px}
+.btn-primary{background:#fff;color:#000;font-size:13px;font-weight:500;padding:8px 16px;border-radius:100px;border:none;cursor:pointer;letter-spacing:-0.13px;transition:opacity 0.15s;white-space:nowrap}
+.btn-primary:hover{opacity:0.9}
+.btn-secondary{background:var(--surface1);color:var(--ink);font-size:13px;font-weight:500;padding:8px 16px;border-radius:100px;border:none;cursor:pointer;letter-spacing:-0.13px;transition:background 0.15s}
+.btn-secondary:hover{background:var(--surface2)}
+
+/* HERO */
+.hero{min-height:100vh;display:flex;flex-direction:column;justify-content:space-between;padding:0 40px;padding-top:120px;padding-bottom:60px;position:relative;overflow:hidden;background:var(--canvas)}
+.hero-video-overlay{position:absolute;inset:0;z-index:0;background:linear-gradient(180deg,rgba(9,9,9,0.4) 0%,rgba(9,9,9,0.7) 100%)}
+.hero-video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:-1;opacity:0.35}
+.hero-content{position:relative;z-index:1;max-width:1200px;margin:0 auto;width:100%}
+.hero-top-row{display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:100px;gap:40px}
+.hero-tagline{font-size:13px;color:var(--ink-muted);max-width:340px;line-height:1.6;letter-spacing:-0.13px}
+.hero-stat{font-size:13px;color:var(--ink-muted);text-align:right;letter-spacing:-0.13px}
+.hero-badge{display:inline-flex;align-items:center;gap:6px;background:rgba(255,255,255,0.06);border:0.5px solid var(--hairline);border-radius:100px;padding:6px 14px;font-size:12px;color:var(--ink-muted);letter-spacing:-0.12px;margin-bottom:28px}
+.hero-badge-dot{width:6px;height:6px;border-radius:50%;background:var(--success);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.4}}
+.hero-h1{font-size:clamp(64px,8vw,110px);font-weight:500;line-height:0.85;letter-spacing:-0.05em;color:var(--ink);margin-bottom:40px}
+.hero-h1-shiny{background:linear-gradient(135deg,#64CEFB 0%,#a78bfa 50%,#64CEFB 100%);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shine 3s linear infinite}
+@keyframes shine{0%{background-position:0% center}100%{background-position:200% center}}
+.hero-cta{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.hero-btn{display:flex;align-items:center;gap:8px;background:#fff;color:#000;font-size:14px;font-weight:500;padding:12px 22px;border-radius:100px;border:none;cursor:pointer;letter-spacing:-0.14px;transition:all 0.2s}
+.hero-btn:hover{opacity:0.92;transform:translateY(-1px)}
+.hero-btn-arrow{transition:transform 0.2s}
+.hero-btn:hover .hero-btn-arrow{transform:translateX(3px)}
+.hero-sub{font-size:14px;color:var(--ink-muted);letter-spacing:-0.14px}
+.hero-stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:80px;position:relative;z-index:1;max-width:1200px;margin-left:auto;margin-right:auto;width:100%}
+.hero-stat-card{background:rgba(255,255,255,0.04);border:0.5px solid var(--hairline);border-radius:12px;padding:18px 20px;text-align:center;backdrop-filter:blur(12px)}
+.hero-stat-card-val{font-size:24px;font-weight:500;color:var(--ink);letter-spacing:-1px;margin-bottom:4px}
+.hero-stat-card-lbl{font-size:12px;color:var(--ink-muted);letter-spacing:-0.12px}
+
+/* SECTIONS COMMON */
+section{padding:96px 40px;max-width:100%;overflow:hidden}
+.section-inner{max-width:1200px;margin:0 auto}
+.eyebrow{display:inline-block;font-size:12px;font-weight:500;color:var(--ink-muted);letter-spacing:0.08em;text-transform:uppercase;margin-bottom:24px}
+.display-xl{font-size:clamp(48px,5vw,85px);font-weight:500;line-height:0.95;letter-spacing:-0.05em;color:var(--ink);margin-bottom:24px}
+.display-lg{font-size:clamp(36px,4vw,62px);font-weight:500;line-height:1.0;letter-spacing:-0.05em;color:var(--ink)}
+.display-md{font-size:clamp(22px,2.5vw,32px);font-weight:500;line-height:1.13;letter-spacing:-0.03em;color:var(--ink)}
+.body-lg{font-size:18px;color:var(--ink-muted);line-height:1.5;letter-spacing:-0.18px;max-width:520px}
+.body{font-size:15px;color:var(--ink-muted);line-height:1.5;letter-spacing:-0.15px}
+.accent-cyan{color:var(--cyan)}
+.accent-violet{color:#a78bfa}
+
+/* ABOUT — card grid */
+.about-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:60px}
+.about-card{background:var(--surface1);border:0.5px solid var(--hairline);border-radius:20px;padding:28px;transition:all 0.2s;cursor:default}
+.about-card:hover{background:var(--surface2);transform:translateY(-2px)}
+.about-card-icon{width:36px;height:36px;border-radius:8px;background:var(--surface2);display:flex;align-items:center;justify-content:center;margin-bottom:16px;font-size:18px}
+.about-card-title{font-size:15px;font-weight:500;color:var(--ink);letter-spacing:-0.15px;margin-bottom:8px}
+.about-card-body{font-size:14px;color:var(--ink-muted);line-height:1.6;letter-spacing:-0.14px}
+
+/* SPOTLIGHT CARDS — Framer signature */
+.spotlight-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:60px}
+.spotlight-card{border-radius:20px;padding:32px;min-height:240px;display:flex;flex-direction:column;justify-content:space-between;position:relative;overflow:hidden;cursor:default;transition:transform 0.2s}
+.spotlight-card:hover{transform:translateY(-3px)}
+.spotlight-card-violet{background:linear-gradient(135deg,#6a4cf5 0%,#4f35cc 100%)}
+.spotlight-card-magenta{background:linear-gradient(135deg,#d44df0 0%,#9b2dd1 100%)}
+.spotlight-card-orange{background:linear-gradient(135deg,#ff7a3d 0%,#e85d1e 100%)}
+.spotlight-card-title{font-size:24px;font-weight:500;color:#fff;letter-spacing:-0.8px;line-height:1.2}
+.spotlight-card-sub{font-size:14px;color:rgba(255,255,255,0.75);letter-spacing:-0.14px;margin-top:8px}
+.spotlight-card-tag{display:inline-block;background:rgba(255,255,255,0.15);border-radius:100px;padding:5px 12px;font-size:12px;color:#fff;font-weight:500;align-self:flex-start}
+.spotlight-card-num{font-size:52px;font-weight:500;color:rgba(255,255,255,0.9);letter-spacing:-3px;line-height:1}
+.spotlight-noise{position:absolute;inset:0;opacity:0.03;background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");pointer-events:none}
+
+/* COURSES */
+.courses-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:60px}
+.course-card{background:var(--surface1);border:0.5px solid var(--hairline);border-radius:20px;padding:28px;transition:all 0.2s;cursor:pointer;position:relative;overflow:hidden}
+.course-card:hover{border-color:rgba(100,206,251,0.25);background:var(--surface2);transform:translateY(-2px)}
+.course-card::before{content:'';position:absolute;inset:0;background:radial-gradient(400px circle at 50% -20%,rgba(100,206,251,0.05),transparent 70%);opacity:0;transition:opacity 0.3s;pointer-events:none}
+.course-card:hover::before{opacity:1}
+.course-badge{display:inline-block;font-size:11px;font-weight:500;padding:4px 10px;border-radius:100px;margin-bottom:16px}
+.course-level{font-size:12px;color:var(--ink-muted);letter-spacing:0.06em;text-transform:uppercase;margin-bottom:8px}
+.course-title{font-size:20px;font-weight:500;color:var(--ink);letter-spacing:-0.6px;margin-bottom:10px}
+.course-desc{font-size:14px;color:var(--ink-muted);line-height:1.6;letter-spacing:-0.14px;margin-bottom:20px}
+.course-footer{display:flex;align-items:center;justify-content:space-between}
+.course-duration{font-size:12px;color:var(--ink-muted)}
+.course-link{font-size:13px;color:var(--cyan);font-weight:500;display:flex;align-items:center;gap:4px;letter-spacing:-0.13px}
+.course-link-arr{transition:transform 0.2s}
+.course-card:hover .course-link-arr{transform:translateX(4px)}
+
+/* ATLAS DASHBOARD */
+.atlas-section{background:var(--canvas);position:relative}
+.atlas-section::before{content:'';position:absolute;top:0;left:0;right:0;height:1px;background:var(--hairline-soft)}
+.atlas-grid-bg{position:absolute;inset:0;background-image:linear-gradient(rgba(100,206,251,0.025) 1px,transparent 1px),linear-gradient(90deg,rgba(100,206,251,0.025) 1px,transparent 1px);background-size:48px 48px;pointer-events:none}
+.atlas-glow{position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);width:600px;height:600px;border-radius:50%;background:radial-gradient(circle,rgba(100,206,251,0.04) 0%,transparent 70%);pointer-events:none}
+.atlas-header{text-align:center;margin-bottom:64px}
+.atlas-pill{display:inline-flex;align-items:center;gap:6px;background:rgba(100,206,251,0.08);border:0.5px solid rgba(100,206,251,0.25);border-radius:100px;padding:6px 14px;font-size:12px;color:var(--cyan);letter-spacing:-0.12px;margin-bottom:24px}
+.atlas-layout{display:grid;grid-template-columns:380px 1fr;gap:16px;align-items:start}
+.glass-card{background:rgba(10,10,20,0.8);border:0.5px solid rgba(100,206,251,0.12);border-radius:20px;backdrop-filter:blur(32px);box-shadow:0 8px 40px rgba(0,0,0,0.5)}
+.panel-header{padding:18px 20px;border-bottom:0.5px solid rgba(100,206,251,0.08);display:flex;align-items:center;gap:8px}
+.panel-title{font-size:13px;font-weight:500;color:var(--ink);letter-spacing:-0.13px}
+.panel-badge{margin-left:auto;display:flex;align-items:center;gap:5px;font-size:11px;color:var(--success)}
+.live-dot{width:6px;height:6px;border-radius:50%;background:var(--success);animation:pulse 2s infinite}
+.panel-body{padding:20px}
+.input-group{margin-bottom:12px}
+.atlas-input{width:100%;background:rgba(255,255,255,0.04);border:0.5px solid var(--hairline);border-radius:10px;padding:10px 14px;font-size:14px;color:var(--ink);font-family:'Inter',sans-serif;outline:none;transition:border-color 0.15s;letter-spacing:-0.14px}
+.atlas-input:focus{border-color:rgba(100,206,251,0.4)}
+.atlas-textarea{resize:none;min-height:100px;line-height:1.5}
+.atlas-submit{width:100%;padding:12px;background:rgba(100,206,251,0.1);border:0.5px solid rgba(100,206,251,0.3);border-radius:10px;color:var(--cyan);font-size:14px;font-weight:500;font-family:'Inter',sans-serif;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:8px;transition:all 0.2s;letter-spacing:-0.14px;margin-top:16px}
+.atlas-submit:hover{background:rgba(100,206,251,0.18);box-shadow:0 0 20px rgba(100,206,251,0.15)}
+.atlas-submit:disabled{opacity:0.4;cursor:not-allowed}
+
+/* STATUS PIPELINE */
+.pipeline{margin-top:16px}
+.pipeline-step{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:0.5px solid rgba(255,255,255,0.03)}
+.pipeline-step:last-child{border-bottom:none}
+.step-dot{width:20px;height:20px;border-radius:50%;border:0.5px solid var(--hairline);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:9px}
+.step-dot.done{border-color:#22c55e60;background:rgba(34,197,94,0.1);color:var(--success)}
+.step-dot.active{border-color:rgba(100,206,251,0.5);background:rgba(100,206,251,0.1)}
+.step-dot.wait{background:rgba(255,255,255,0.03)}
+.step-label{font-size:13px;letter-spacing:-0.13px}
+.step-label.done{color:rgba(255,255,255,0.7)}
+.step-label.active{color:var(--ink)}
+.step-label.wait{color:var(--ink-muted)}
+
+/* DAG WAVES */
+.dag-section{margin-top:16px}
+.wave-row{margin-bottom:16px}
+.wave-label{font-size:11px;color:var(--ink-muted);letter-spacing:0.05em;text-transform:uppercase;margin-bottom:8px}
+.wave-nodes{display:flex;flex-wrap:wrap;gap:6px}
+.wave-node{padding:5px 12px;border-radius:8px;font-size:12px;font-weight:500;transition:all 0.3s}
+.wave-node.waiting{background:rgba(255,255,255,0.04);border:0.5px solid var(--hairline);color:var(--ink-muted)}
+.wave-node.running{background:rgba(100,206,251,0.1);border:0.5px solid rgba(100,206,251,0.4);color:var(--cyan)}
+.wave-node.passed{background:rgba(34,197,94,0.1);border:0.5px solid rgba(34,197,94,0.4);color:var(--success)}
+.wave-node.failed{background:rgba(239,68,68,0.1);border:0.5px solid rgba(239,68,68,0.4);color:#ef4444}
+
+/* TABS */
+.tab-bar{display:flex;border-bottom:0.5px solid rgba(100,206,251,0.08);background:rgba(0,0,0,0.3)}
+.tab-btn{padding:14px 20px;font-size:12px;font-weight:500;color:var(--ink-muted);background:none;border:none;cursor:pointer;font-family:'Inter',sans-serif;border-bottom:2px solid transparent;transition:all 0.15s;letter-spacing:-0.12px;display:flex;align-items:center;gap:6px}
+.tab-btn.active{color:var(--cyan);border-bottom-color:var(--cyan);background:rgba(100,206,251,0.03)}
+.tab-btn:hover:not(.active){color:var(--ink)}
+.tab-content{height:480px;overflow-y:auto}
+.tab-content::-webkit-scrollbar{width:4px}
+.tab-content::-webkit-scrollbar-track{background:transparent}
+.tab-content::-webkit-scrollbar-thumb{background:rgba(100,206,251,0.2);border-radius:2px}
+
+/* FEED EVENTS */
+.feed-empty{display:flex;flex-direction:column;align-items:center;justify-content:center;height:100%;gap:12px;color:var(--ink-muted)}
+.feed-empty-icon{font-size:36px;opacity:0.3}
+.feed-event{display:flex;align-items:flex-start;gap:10px;padding:10px 16px;border-bottom:0.5px solid rgba(255,255,255,0.03);animation:fadeIn 0.3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateX(8px)}to{opacity:1;transform:none}}
+.event-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.event-kind{font-size:12px;font-weight:500;letter-spacing:-0.12px}
+.event-meta{font-size:11px;color:var(--ink-muted);letter-spacing:-0.11px;margin-top:2px}
+.event-time{font-size:11px;color:rgba(255,255,255,0.2);margin-left:auto;flex-shrink:0}
+
+/* TIMELINE */
+.timeline-wrap{padding:16px;position:relative}
+.timeline-line{position:absolute;left:23px;top:0;bottom:0;width:1px;background:linear-gradient(180deg,rgba(100,206,251,0.3),rgba(100,206,251,0.02))}
+.tl-item{display:flex;align-items:flex-start;gap:12px;margin-bottom:4px;padding:8px 0;padding-left:8px}
+.tl-dot{width:12px;height:12px;border-radius:50%;flex-shrink:0;margin-top:4px;border:1.5px solid;box-shadow:0 0 6px currentColor}
+.tl-body{flex:1;min-width:0;background:rgba(255,255,255,0.02);border:0.5px solid rgba(255,255,255,0.04);border-radius:8px;padding:8px 10px}
+.tl-kind{font-size:12px;font-weight:500;letter-spacing:-0.12px}
+.tl-payload{font-size:11px;color:var(--ink-muted);margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tl-time{font-size:10px;color:rgba(255,255,255,0.2);margin-left:auto;flex-shrink:0;padding-top:4px}
+
+/* BUDGET */
+.budget-wrap{padding:20px;display:flex;flex-direction:column;gap:16px}
+.budget-gauge{background:rgba(100,206,251,0.05);border:0.5px solid rgba(100,206,251,0.12);border-radius:16px;padding:20px}
+.budget-label{font-size:13px;color:var(--ink-muted);margin-bottom:10px;letter-spacing:-0.13px}
+.budget-vals{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:14px}
+.budget-spent{font-size:28px;font-weight:500;color:var(--ink);letter-spacing:-1px}
+.budget-total{font-size:14px;color:var(--ink-muted)}
+.gauge-track{height:6px;border-radius:100px;background:rgba(255,255,255,0.06);overflow:hidden}
+.gauge-fill{height:100%;border-radius:100px;background:linear-gradient(90deg,var(--cyan),#a78bfa);transition:width 0.5s ease}
+.gauge-labels{display:flex;justify-content:space-between;margin-top:6px}
+.gauge-pct{font-size:11px;color:var(--ink-muted)}
+.budget-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.bstat{background:rgba(255,255,255,0.03);border:0.5px solid var(--hairline);border-radius:12px;padding:14px;display:flex;align-items:center;gap:10px}
+.bstat-icon{font-size:16px;opacity:0.8}
+.bstat-val{font-size:18px;font-weight:500;color:var(--ink);letter-spacing:-0.5px;line-height:1}
+.bstat-lbl{font-size:11px;color:var(--ink-muted);margin-top:2px;letter-spacing:-0.11px}
+.budget-note{background:rgba(255,255,255,0.02);border:0.5px solid var(--hairline-soft);border-radius:10px;padding:12px;font-size:12px;color:var(--ink-muted);line-height:1.6;letter-spacing:-0.12px}
+
+/* FOOTER */
+footer{background:var(--canvas);border-top:0.5px solid var(--hairline-soft);padding:64px 40px}
+.footer-inner{max-width:1200px;margin:0 auto;display:grid;grid-template-columns:200px repeat(4,1fr);gap:40px}
+.footer-brand p{font-size:13px;color:var(--ink-muted);margin-top:12px;line-height:1.6;letter-spacing:-0.13px}
+.footer-col-title{font-size:13px;font-weight:500;color:var(--ink);letter-spacing:-0.13px;margin-bottom:16px}
+.footer-link{display:block;font-size:13px;color:var(--ink-muted);text-decoration:none;margin-bottom:10px;letter-spacing:-0.13px;transition:color 0.15s}
+.footer-link:hover{color:var(--ink)}
+.footer-bottom{max-width:1200px;margin:48px auto 0;padding-top:24px;border-top:0.5px solid var(--hairline-soft);display:flex;justify-content:space-between;align-items:center}
+.footer-copy{font-size:12px;color:var(--ink-muted);letter-spacing:-0.12px}
+
+/* SCROLL ANIMATE */
+.fade-up{opacity:0;transform:translateY(24px);transition:all 0.6s cubic-bezier(0.22,1,0.36,1)}
+.fade-up.visible{opacity:1;transform:none}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#home">
+    <div class="nav-logo-ring"><div class="nav-logo-dot"></div></div>
+    <span class="nav-logo-text">DesignPro</span>
+  </a>
+  <div class="nav-links">
+    <a class="nav-link" href="#home">Home</a>
+    <a class="nav-link" href="#about">About Us</a>
+    <a class="nav-link" href="#courses">Courses</a>
+    <a class="nav-link" href="#atlas">ATLAS AI ↗</a>
+    <a class="nav-link" href="#contact">Contact us →</a>
+  </div>
+  <div class="nav-cta">
+    <button class="btn-secondary">Sign in</button>
+    <button class="btn-primary">Apply now</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="home">
+  <video class="hero-video" autoplay loop muted playsinline
+    src="https://d8j0ntlcm91z4.cloudfront.net/user_38xzZboKViGWJOttwIXH07lWA1P/hf_20260328_105406_16f4600d-7a92-4292-b96e-b19156c7830a.mp4">
+  </video>
+  <div class="hero-video-overlay"></div>
+  <div class="hero-content">
+    <div class="hero-top-row fade-up">
+      <p class="hero-tagline">We deliver transformative programs that empower emerging product designers with cutting-edge expertise and vision to thrive globally.</p>
+      <p class="hero-stat">8000+ Talented Designers Launched !</p>
+    </div>
+    <div class="fade-up" style="animation-delay:0.1s">
+      <div class="hero-badge">
+        <div class="hero-badge-dot"></div>
+        Seats for Next Program Opening Soon
+      </div>
+      <h1 class="hero-h1">
+        Become<br>
+        <span class="hero-h1-shiny">Product Leader.</span>
+      </h1>
+      <div class="hero-cta">
+        <button class="hero-btn">
+          Apply for Next Enrollment
+          <svg class="hero-btn-arrow" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+        </button>
+        <span class="hero-sub">No application fee · Rolling admissions</span>
+      </div>
+    </div>
+  </div>
+  <div class="hero-stats-row fade-up" style="animation-delay:0.2s">
+    <div class="hero-stat-card"><div class="hero-stat-card-val">8,000+</div><div class="hero-stat-card-lbl">Alumni Globally</div></div>
+    <div class="hero-stat-card"><div class="hero-stat-card-val">94%</div><div class="hero-stat-card-lbl">Placement Rate</div></div>
+    <div class="hero-stat-card"><div class="hero-stat-card-val">120+</div><div class="hero-stat-card-lbl">Industry Partners</div></div>
+    <div class="hero-stat-card"><div class="hero-stat-card-val">4.9 ★</div><div class="hero-stat-card-lbl">Average Rating</div></div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about" style="background:var(--canvas);padding:96px 40px">
+  <div class="section-inner">
+    <div class="fade-up">
+      <span class="eyebrow">About DesignPro</span>
+      <h2 class="display-xl">Where Product<br>Designers Are <span class="hero-h1-shiny">Made.</span></h2>
+      <p class="body-lg" style="margin-top:20px">We deliver transformative programs that empower emerging product designers with cutting-edge expertise and vision to thrive globally.</p>
+    </div>
+    <div class="about-grid fade-up" style="animation-delay:0.15s">
+      <div class="about-card">
+        <div class="about-card-icon">🌍</div>
+        <div class="about-card-title">Global Vision</div>
+        <div class="about-card-body">We train designers to think beyond borders — preparing them for world-class studios, startups, and Fortune 500 product teams across 40+ countries.</div>
+      </div>
+      <div class="about-card">
+        <div class="about-card-icon">🏆</div>
+        <div class="about-card-title">Industry-Led</div>
+        <div class="about-card-body">Every module is built with active product leaders. No theory without practice. No practice without industry validation from day one.</div>
+      </div>
+      <div class="about-card">
+        <div class="about-card-icon">👥</div>
+        <div class="about-card-title">8,000+ Alumni</div>
+        <div class="about-card-body">A thriving global network spanning 40+ countries. Our alumni lead design at Figma, Google, Meta, and hundreds of high-growth startups.</div>
+      </div>
+      <div class="about-card">
+        <div class="about-card-icon">⚡</div>
+        <div class="about-card-title">Future-Ready</div>
+        <div class="about-card-body">From AI-powered design tools to emerging UX paradigms — our curriculum evolves every quarter with the industry, never behind.</div>
+      </div>
+    </div>
+    <!-- Spotlight cards — Framer signature -->
+    <div class="spotlight-grid fade-up" style="animation-delay:0.2s;margin-top:16px">
+      <div class="spotlight-card spotlight-card-violet">
+        <div class="spotlight-noise"></div>
+        <div class="spotlight-card-tag">Alumni Network</div>
+        <div>
+          <div class="spotlight-card-num">8K+</div>
+          <div class="spotlight-card-title" style="margin-top:8px">Designers launched globally</div>
+        </div>
+      </div>
+      <div class="spotlight-card spotlight-card-magenta">
+        <div class="spotlight-noise"></div>
+        <div class="spotlight-card-tag">Placement</div>
+        <div>
+          <div class="spotlight-card-num">94%</div>
+          <div class="spotlight-card-title" style="margin-top:8px">Placed within 6 months</div>
+        </div>
+      </div>
+      <div class="spotlight-card spotlight-card-orange">
+        <div class="spotlight-noise"></div>
+        <div class="spotlight-card-tag">Rating</div>
+        <div>
+          <div class="spotlight-card-num">4.9★</div>
+          <div class="spotlight-card-title" style="margin-top:8px">From 3,200+ student reviews</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COURSES -->
+<section id="courses" style="background:var(--canvas);padding:96px 40px;border-top:0.5px solid var(--hairline-soft)">
+  <div class="section-inner">
+    <div class="fade-up">
+      <span class="eyebrow">Our Programs</span>
+      <h2 class="display-xl">Design Your <span class="hero-h1-shiny">Future.</span></h2>
+      <p class="body-lg" style="margin-top:20px">Structured learning paths for every stage — from first principles to senior product leadership.</p>
+    </div>
+    <div class="courses-grid fade-up" style="animation-delay:0.15s">
+      <div class="course-card">
+        <span class="course-badge" style="background:rgba(100,206,251,0.12);color:var(--cyan)">Most Popular</span>
+        <div class="course-level">Foundation</div>
+        <div class="course-title">Product Design Essentials</div>
+        <div class="course-desc">Master the fundamentals — user research, wireframing, prototyping, and design systems from day one in a cohort-based environment.</div>
+        <div class="course-footer">
+          <span class="course-duration">8 weeks · Cohort-based</span>
+          <span class="course-link">Learn more <span class="course-link-arr">→</span></span>
+        </div>
+      </div>
+      <div class="course-card">
+        <span class="course-badge" style="background:rgba(34,197,94,0.12);color:#22c55e">New Cohort</span>
+        <div class="course-level">Intermediate</div>
+        <div class="course-title">UX Strategy &amp; Systems</div>
+        <div class="course-desc">From atomic design to enterprise-scale systems. Learn how top designers build components that scale across millions of users.</div>
+        <div class="course-footer">
+          <span class="course-duration">10 weeks · Live sessions</span>
+          <span class="course-link">Learn more <span class="course-link-arr">→</span></span>
+        </div>
+      </div>
+      <div class="course-card">
+        <span class="course-badge" style="background:rgba(245,158,11,0.12);color:#f59e0b">Limited Seats</span>
+        <div class="course-level">Advanced</div>
+        <div class="course-title">Product Leadership</div>
+        <div class="course-desc">Lead cross-functional teams, drive product vision, and ship work that moves metrics that matter at scale.</div>
+        <div class="course-footer">
+          <span class="course-duration">12 weeks · Mentorship</span>
+          <span class="course-link">Learn more <span class="course-link-arr">→</span></span>
+        </div>
+      </div>
+      <div class="course-card">
+        <span class="course-badge" style="background:rgba(167,139,250,0.12);color:#a78bfa">2026 Launch</span>
+        <div class="course-level">Specialization</div>
+        <div class="course-title">AI-Powered Design</div>
+        <div class="course-desc">Prompt engineering for designers, AI tools integration, and building the future of human-AI interfaces from first principles.</div>
+        <div class="course-footer">
+          <span class="course-duration">6 weeks · Self-paced</span>
+          <span class="course-link">Join waitlist <span class="course-link-arr">→</span></span>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:40px" class="fade-up">
+      <button class="btn-secondary" style="padding:12px 28px;font-size:14px">View all programs →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ATLAS DASHBOARD -->
+<section id="atlas" class="atlas-section" style="padding:96px 40px;position:relative;overflow:hidden">
+  <div class="atlas-grid-bg"></div>
+  <div class="atlas-glow"></div>
+  <div class="section-inner" style="position:relative;z-index:1">
+    <div class="atlas-header fade-up">
+      <div class="atlas-pill">⚡ ATLAS Multi-Agent System</div>
+      <h2 class="display-xl">Watch AI Build<br><span class="hero-h1-shiny">Itself.</span></h2>
+      <p class="body-lg" style="margin:20px auto 0;text-align:center">Submit a task. The Intelligence Router scores it, the Architect decomposes it into a dependency graph, and parallel agents write, test, and self-heal — live.</p>
+    </div>
+    <div class="atlas-layout fade-up" style="animation-delay:0.15s">
+      <!-- LEFT COLUMN -->
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <!-- Submit card -->
+        <div class="glass-card">
+          <div class="panel-header">
+            <span style="font-size:14px">⌨</span>
+            <span class="panel-title">Submit Task</span>
+            <div class="panel-badge" id="ws-badge" style="display:none">
+              <div class="live-dot"></div> Live
+            </div>
+          </div>
+          <div class="panel-body">
+            <div class="input-group">
+              <input id="task-title" class="atlas-input" placeholder="Task title..." value="Build a binary search tree"/>
+            </div>
+            <div class="input-group">
+              <textarea id="task-desc" class="atlas-input atlas-textarea" placeholder="Describe what to build...">Implement a Binary Search Tree class in Python with: insert(val), search(val) returning True/False, delete(val), inorder() returning sorted list, and height() returning tree height. Handle edge cases like empty tree and duplicate values.</textarea>
+            </div>
+            <button id="submit-btn" class="atlas-submit" onclick="submitTask()">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+              Run ATLAS Pipeline
+            </button>
+          </div>
+        </div>
+        <!-- Status card -->
+        <div id="status-card" class="glass-card" style="display:none">
+          <div class="panel-header">
+            <span style="font-size:14px">📊</span>
+            <span class="panel-title">Pipeline Status</span>
+            <span id="status-badge" style="margin-left:auto;font-size:11px;padding:3px 10px;border-radius:100px;font-weight:500"></span>
+          </div>
+          <div class="panel-body">
+            <div style="font-size:11px;color:var(--ink-muted);font-family:monospace;word-break:break-all;margin-bottom:14px" id="task-id-display"></div>
+            <div class="pipeline" id="pipeline-steps">
+              <div class="pipeline-step"><div class="step-dot wait" id="dot-pending">·</div><span class="step-label wait" id="lbl-pending">Pending</span></div>
+              <div class="pipeline-step"><div class="step-dot wait" id="dot-planning">·</div><span class="step-label wait" id="lbl-planning">Planning (Intelligence Router + Architect)</span></div>
+              <div class="pipeline-step"><div class="step-dot wait" id="dot-coding">·</div><span class="step-label wait" id="lbl-coding">Coding (parallel agents)</span></div>
+              <div class="pipeline-step"><div class="step-dot wait" id="dot-verifying">·</div><span class="step-label wait" id="lbl-verifying">Verifying (Docker sandbox)</span></div>
+              <div class="pipeline-step"><div class="step-dot wait" id="dot-completed">·</div><span class="step-label wait" id="lbl-completed">Completed</span></div>
+            </div>
+          </div>
+        </div>
+        <!-- DAG card -->
+        <div id="dag-card" class="glass-card" style="display:none">
+          <div class="panel-header">
+            <span style="font-size:14px">🔀</span>
+            <span class="panel-title">Execution DAG</span>
+            <span id="dag-wave-count" style="margin-left:auto;font-size:11px;color:var(--ink-muted)"></span>
+          </div>
+          <div class="panel-body dag-section" id="dag-content"></div>
+        </div>
+      </div>
+      <!-- RIGHT COLUMN — tabs -->
+      <div class="glass-card" style="display:flex;flex-direction:column;min-height:560px;overflow:hidden">
+        <div class="tab-bar">
+          <button class="tab-btn active" onclick="switchTab('feed',this)">⚡ Live Feed</button>
+          <button class="tab-btn" onclick="switchTab('timeline',this)">🔀 DAG Timeline</button>
+          <button class="tab-btn" onclick="switchTab('budget',this)">📊 Budget</button>
+        </div>
+        <!-- FEED -->
+        <div id="tab-feed" class="tab-content">
+          <div id="feed-empty" class="feed-empty">
+            <div class="feed-empty-icon">⚡</div>
+            <div style="font-size:13px">Submit a task to see live agent events</div>
+          </div>
+          <div id="feed-events"></div>
+        </div>
+        <!-- TIMELINE -->
+        <div id="tab-timeline" class="tab-content" style="display:none">
+          <div id="tl-empty" class="feed-empty">
+            <div class="feed-empty-icon">🔀</div>
+            <div style="font-size:13px">Timeline appears after task starts</div>
+          </div>
+          <div id="tl-events" class="timeline-wrap" style="display:none">
+            <div class="timeline-line"></div>
+            <div id="tl-items"></div>
+          </div>
+        </div>
+        <!-- BUDGET -->
+        <div id="tab-budget" class="tab-content" style="display:none">
+          <div id="budget-empty" class="feed-empty">
+            <div class="feed-empty-icon">📊</div>
+            <div style="font-size:13px">Budget data appears after task starts</div>
+          </div>
+          <div id="budget-content" class="budget-wrap" style="display:none"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer id="contact">
+  <div class="footer-inner">
+    <div class="footer-brand">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        <div class="nav-logo-ring" style="width:24px;height:24px"><div class="nav-logo-dot" style="width:8px;height:8px"></div></div>
+        <span style="font-size:14px;font-weight:500;color:var(--ink)">DesignPro</span>
+      </div>
+      <p>Transformative product design education for the next generation of leaders.</p>
+    </div>
+    <div>
+      <div class="footer-col-title">Programs</div>
+      <a class="footer-link" href="#">Essentials</a>
+      <a class="footer-link" href="#">UX Strategy</a>
+      <a class="footer-link" href="#">Leadership</a>
+      <a class="footer-link" href="#">AI Design</a>
+    </div>
+    <div>
+      <div class="footer-col-title">Company</div>
+      <a class="footer-link" href="#">About</a>
+      <a class="footer-link" href="#">Blog</a>
+      <a class="footer-link" href="#">Careers</a>
+      <a class="footer-link" href="#">Press</a>
+    </div>
+    <div>
+      <div class="footer-col-title">Community</div>
+      <a class="footer-link" href="#">Alumni Network</a>
+      <a class="footer-link" href="#">Events</a>
+      <a class="footer-link" href="#">Mentorship</a>
+      <a class="footer-link" href="#">Discord</a>
+    </div>
+    <div>
+      <div class="footer-col-title">Legal</div>
+      <a class="footer-link" href="#">Privacy</a>
+      <a class="footer-link" href="#">Terms</a>
+      <a class="footer-link" href="#">Cookies</a>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span class="footer-copy">© 2026 DesignPro. All rights reserved.</span>
+    <span class="footer-copy">Powered by ATLAS multi-agent system</span>
+  </div>
+</footer>
+
+<script>
+const API = 'http://localhost:8000';
+let ws = null;
+let pollTimer = null;
+let currentTaskId = null;
+let activeTab = 'feed';
+
+const KIND_COLORS = {
+  'task.accepted':'#64CEFB','task.complexity_scored':'#a78bfa',
+  'task.plan_created':'#34d399','task.completed':'#22c55e',
+  'task.failed':'#ef4444','wave.started':'#f59e0b',
+  'wave.completed':'#34d399','subtask.started':'#64CEFB',
+  'subtask.passed':'#22c55e','subtask.failed':'#ef4444',
+  'subtask.retry':'#f97316','agent.called':'#a78bfa',
+  'agent.responded':'#34d399','subtask.verified':'#34d399',
+};
+
+function kindColor(k){ return KIND_COLORS[k]||'#64CEFB'; }
+
+function switchTab(tab,btn){
+  activeTab=tab;
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  btn.classList.add('active');
+  ['feed','timeline','budget'].forEach(t=>{
+    document.getElementById('tab-'+t).style.display=t===tab?'block':'none';
+  });
+}
+
+function updateStatus(status){
+  const sb=document.getElementById('status-badge');
+  const colors={pending:'#64CEFB',planning:'#a78bfa',coding:'#f59e0b',
+    verifying:'#34d399',retry:'#f97316',completed:'#22c55e',failed:'#ef4444'};
+  const c=colors[status]||'#64CEFB';
+  sb.textContent=status.charAt(0).toUpperCase()+status.slice(1);
+  sb.style.background=c+'18';sb.style.color=c;sb.style.border=`0.5px solid ${c}40`;
+
+  const stages=['pending','planning','coding','verifying','completed'];
+  const order=['pending','planning','coding','verifying','completed','retry','failed'];
+  const cur=order.indexOf(status);
+  stages.forEach(s=>{
+    const idx=order.indexOf(s);
+    const dot=document.getElementById('dot-'+s);
+    const lbl=document.getElementById('lbl-'+s);
+    if(!dot)return;
+    if(cur>idx){
+      dot.className='step-dot done';dot.innerHTML='✓';
+      lbl.className='step-label done';
+    } else if(cur===idx){
+      dot.className='step-dot active';dot.innerHTML='◉';
+      lbl.className='step-label active';
+    } else {
+      dot.className='step-dot wait';dot.innerHTML='·';
+      lbl.className='step-label wait';
+    }
+  });
+}
+
+function addFeedEvent(event){
+  const empty=document.getElementById('feed-empty');
+  if(empty)empty.style.display='none';
+  const container=document.getElementById('feed-events');
+  const color=kindColor(event.event);
+  const el=document.createElement('div');
+  el.className='feed-event';
+  const time=new Date(event.timestamp||Date.now()).toLocaleTimeString();
+  const agent=event.data&&event.data.agent?` [${event.data.agent}]`:'';
+  const status=event.data&&event.data.status?`<div class="event-meta">status → ${event.data.status}</div>`:'';
+  const wave=event.data&&event.data.wave!=null?`<div class="event-meta">wave ${event.data.wave}</div>`:'';
+  const msg=event.data&&event.data.message?`<div class="event-meta" style="color:var(--ink-muted)">${String(event.data.message).substring(0,80)}</div>`:'';
+  el.innerHTML=`
+    <div class="event-dot" style="background:${color};box-shadow:0 0 6px ${color}60"></div>
+    <div style="flex:1;min-width:0">
+      <div style="display:flex;align-items:center;gap:6px">
+        <span class="event-kind" style="color:${color}">${event.event}</span>
+        ${agent?`<span style="font-size:11px;color:var(--ink-muted)">${agent}</span>`:''}
+      </div>
+      ${status}${wave}${msg}
+    </div>
+    <span class="event-time">${time}</span>
+  `;
+  container.appendChild(el);
+  container.parentElement.scrollTop=container.parentElement.scrollHeight;
+}
+
+function renderTimeline(events){
+  if(!events||events.length===0)return;
+  document.getElementById('tl-empty').style.display='none';
+  const wrap=document.getElementById('tl-events');
+  wrap.style.display='block';
+  const items=document.getElementById('tl-items');
+  items.innerHTML='';
+  events.forEach(e=>{
+    const color=kindColor(e.kind);
+    const time=new Date(e.timestamp).toLocaleTimeString();
+    const payload=e.payload&&Object.keys(e.payload).length>0?
+      Object.entries(e.payload).slice(0,3).map(([k,v])=>`${k}: ${JSON.stringify(v)}`).join(' · '):
+      '';
+    const wave=e.wave!=null?`<span style="margin-left:6px;font-size:10px;color:var(--ink-muted)">wave ${e.wave}</span>`:'';
+    const sub=e.subtask_id?`<span style="margin-left:6px;font-size:10px;color:var(--ink-muted)">${e.subtask_id}</span>`:'';
+    const el=document.createElement('div');
+    el.className='tl-item';
+    el.innerHTML=`
+      <div class="tl-dot" style="color:${color};border-color:${color};background:${color}18"></div>
+      <div class="tl-body">
+        <div style="display:flex;align-items:center">
+          <span class="tl-kind" style="color:${color}">${e.kind}</span>${wave}${sub}
+        </div>
+        ${payload?`<div class="tl-payload">${payload}</div>`:''}
+      </div>
+      <span class="tl-time">${time}</span>
+    `;
+    items.appendChild(el);
+  });
+}
+
+function renderDAG(events){
+  const waveMap={};
+  const subtaskStatus={};
+  events.forEach(e=>{
+    if(e.kind==='wave.started'&&e.wave!=null){
+      waveMap[e.wave]=(e.payload&&e.payload.node_ids)||[];
+    }
+    if(e.subtask_id){
+      if(e.kind==='subtask.passed')subtaskStatus[e.subtask_id]='passed';
+      else if(e.kind==='subtask.failed')subtaskStatus[e.subtask_id]='failed';
+      else if(e.kind==='subtask.started'&&!subtaskStatus[e.subtask_id])subtaskStatus[e.subtask_id]='running';
+    }
+  });
+  const waveCount=Object.keys(waveMap).length;
+  if(waveCount===0)return;
+  document.getElementById('dag-card').style.display='block';
+  document.getElementById('dag-wave-count').textContent=`${waveCount} waves`;
+  const content=document.getElementById('dag-content');
+  content.innerHTML='';
+  Object.entries(waveMap).sort((a,b)=>+a[0]-+b[0]).forEach(([wave,nodes])=>{
+    const row=document.createElement('div');
+    row.className='wave-row';
+    const parallel=nodes.length>1;
+    row.innerHTML=`<div class="wave-label">Wave ${wave}${parallel?' · parallel':''}</div>`;
+    const nodeWrap=document.createElement('div');
+    nodeWrap.className='wave-nodes';
+    nodes.forEach(id=>{
+      const st=subtaskStatus[id]||'waiting';
+      const node=document.createElement('div');
+      node.className=`wave-node ${st}`;
+      node.textContent=id+(st==='running'?' •':'');
+      nodeWrap.appendChild(node);
+    });
+    row.appendChild(nodeWrap);
+    content.appendChild(row);
+  });
+}
+
+function renderBudget(budget){
+  if(!budget)return;
+  document.getElementById('budget-empty').style.display='none';
+  const content=document.getElementById('budget-content');
+  content.style.display='flex';
+  const pct=Math.min((budget.spent_usd/budget.budget_usd)*100,100);
+  const remaining=(budget.budget_usd-budget.spent_usd).toFixed(4);
+  content.innerHTML=`
+    <div class="budget-gauge">
+      <div class="budget-label">Budget Used</div>
+      <div class="budget-vals">
+        <span class="budget-spent">$${budget.spent_usd.toFixed(6)}</span>
+        <span class="budget-total">/ $${budget.budget_usd}</span>
+      </div>
+      <div class="gauge-track"><div class="gauge-fill" style="width:${pct.toFixed(1)}%"></div></div>
+      <div class="gauge-labels">
+        <span class="gauge-pct">${pct.toFixed(1)}% used</span>
+        <span class="gauge-pct">$${remaining} remaining</span>
+      </div>
+    </div>
+    <div class="budget-stats">
+      <div class="bstat"><span class="bstat-icon" style="color:#64CEFB">💻</span><div><div class="bstat-val">${budget.llm_calls}</div><div class="bstat-lbl">LLM Calls</div></div></div>
+      <div class="bstat"><span class="bstat-icon" style="color:#a78bfa">📥</span><div><div class="bstat-val">${(budget.tokens_in||0).toLocaleString()}</div><div class="bstat-lbl">Tokens In</div></div></div>
+      <div class="bstat"><span class="bstat-icon" style="color:#34d399">📤</span><div><div class="bstat-val">${(budget.tokens_out||0).toLocaleString()}</div><div class="bstat-lbl">Tokens Out</div></div></div>
+      <div class="bstat"><span class="bstat-icon" style="color:${budget.tier_downgrades>0?'#f59e0b':'#22c55e'}">⚡</span><div><div class="bstat-val">${budget.tier_downgrades}</div><div class="bstat-lbl">Downgrades</div></div></div>
+    </div>
+    <div class="budget-note"><span style="color:var(--cyan)">Groq free tier</span> — token usage tracked as budget proxy. The Governor downgrades model tiers at 70%+ consumption to stay within budget.</div>
+  `;
+}
+
+async function pollData(taskId){
+  try{
+    const [tlRes,budRes]=await Promise.all([
+      fetch(`${API}/tasks/${taskId}/timeline`),
+      fetch(`${API}/tasks/${taskId}/budget`)
+    ]);
+    if(tlRes.ok){
+      const tl=await tlRes.json();
+      updateStatus(tl.status||'pending');
+      renderTimeline(tl.events||[]);
+      renderDAG(tl.events||[]);
+    }
+    if(budRes.ok){
+      const bud=await budRes.json();
+      renderBudget(bud);
+    }
+  } catch(e){}
+}
+
+function connectWS(taskId){
+  if(ws)ws.close();
+  try{
+    ws=new WebSocket(`ws://localhost:8000/ws/${taskId}`);
+    ws.onopen=()=>{
+      document.getElementById('ws-badge').style.display='flex';
+    };
+    ws.onclose=()=>{
+      document.getElementById('ws-badge').style.display='none';
+    };
+    ws.onmessage=(e)=>{
+      try{
+        const ev=JSON.parse(e.data);
+        if(ev.event==='connection.established')return;
+        addFeedEvent(ev);
+        if(ev.data&&ev.data.status)updateStatus(ev.data.status);
+        if(['task.updated','agent.completed','test.result','step.result','cost.update','subtask.passed','subtask.failed'].includes(ev.event)){
+          pollData(taskId);
+        }
+      } catch(err){}
+    };
+  } catch(e){
+    console.log('WS not available — polling only');
+  }
+}
+
+async function submitTask(){
+  const title=document.getElementById('task-title').value.trim();
+  const desc=document.getElementById('task-desc').value.trim();
+  if(!title||!desc)return;
+
+  const btn=document.getElementById('submit-btn');
+  btn.disabled=true;
+  btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin 1s linear infinite"><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0"/></svg> Submitting...';
+
+  document.getElementById('feed-events').innerHTML='';
+  document.getElementById('feed-empty').style.display='flex';
+  document.getElementById('tl-items').innerHTML='';
+  document.getElementById('tl-empty').style.display='flex';
+  document.getElementById('tl-events').style.display='none';
+  document.getElementById('budget-content').style.display='none';
+  document.getElementById('budget-empty').style.display='flex';
+  document.getElementById('dag-card').style.display='none';
+
+  try{
+    const r=await fetch(`${API}/tasks`,{
+      method:'POST',
+      headers:{'Content-Type':'application/json'},
+      body:JSON.stringify({title,description:desc,language:'python',max_retries:3,budget_usd:2.0})
+    });
+    if(!r.ok)throw new Error('API error');
+    const data=await r.json();
+    currentTaskId=data.task_id;
+
+    document.getElementById('status-card').style.display='block';
+    document.getElementById('task-id-display').textContent=data.task_id;
+    updateStatus('pending');
+    connectWS(data.task_id);
+
+    if(pollTimer)clearInterval(pollTimer);
+    pollTimer=setInterval(()=>pollData(data.task_id),2000);
+
+    btn.disabled=false;
+    btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg> Run ATLAS Pipeline';
+  } catch(e){
+    btn.disabled=false;
+    btn.innerHTML='⚠ Backend offline — start server first';
+    setTimeout(()=>{
+      btn.disabled=false;
+      btn.innerHTML='<svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg> Run ATLAS Pipeline';
+    },3000);
+  }
+}
+
+// Scroll animations
+const observer=new IntersectionObserver((entries)=>{
+  entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('visible')});
+},{threshold:0.1});
+document.querySelectorAll('.fade-up').forEach(el=>observer.observe(el));
+
+// Spin animation
+const style=document.createElement('style');
+style.textContent='@keyframes spin{from{transform:rotate(0deg)}to{transform:rotate(360deg)}}';
+document.head.appendChild(style);
+</script>
+</body>
+</html>

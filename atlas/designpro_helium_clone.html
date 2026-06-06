@@ -1,0 +1,919 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#080808;
+  --bg2:#0d0d0d;
+  --surface:#111111;
+  --surface2:#161616;
+  --border:rgba(255,255,255,0.07);
+  --border-cyan:rgba(100,206,251,0.25);
+  --ink:#ffffff;
+  --muted:#888888;
+  --cyan:#64CEFB;
+  --cyan-glow:rgba(100,206,251,0.15);
+  --cyan-dim:rgba(100,206,251,0.06);
+}
+html{scroll-behavior:smooth;background:var(--bg)}
+body{background:var(--bg);color:var(--ink);font-family:'Inter',sans-serif;overflow-x:hidden;-webkit-font-smoothing:antialiased}
+
+/* ── GRID BACKGROUND ── */
+.grid-bg{
+  position:fixed;inset:0;z-index:0;pointer-events:none;
+  background-image:
+    linear-gradient(rgba(100,206,251,0.03) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(100,206,251,0.03) 1px,transparent 1px);
+  background-size:60px 60px;
+}
+/* ── CYAN PLASMA ORB ── */
+.orb{
+  position:fixed;top:0;left:50%;transform:translateX(-50%);
+  width:900px;height:500px;z-index:0;pointer-events:none;
+  background:radial-gradient(ellipse 60% 50% at 50% 0%,rgba(100,206,251,0.18) 0%,rgba(100,206,251,0.06) 40%,transparent 70%);
+  filter:blur(1px);
+}
+.orb2{
+  position:fixed;top:30vh;right:-200px;
+  width:600px;height:600px;z-index:0;pointer-events:none;
+  background:radial-gradient(circle,rgba(100,206,251,0.05) 0%,transparent 65%);
+}
+.orb3{
+  position:fixed;bottom:10vh;left:-150px;
+  width:500px;height:500px;z-index:0;pointer-events:none;
+  background:radial-gradient(circle,rgba(100,206,251,0.04) 0%,transparent 65%);
+}
+
+/* ── NAV ── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 40px;height:60px;
+  background:rgba(8,8,8,0.8);
+  backdrop-filter:blur(24px);-webkit-backdrop-filter:blur(24px);
+  border-bottom:1px solid rgba(255,255,255,0.05);
+}
+.nav-logo{display:flex;align-items:center;gap:10px;text-decoration:none;color:var(--ink)}
+.logo-ring{
+  width:28px;height:28px;border-radius:50%;
+  border:1.5px solid rgba(255,255,255,0.7);
+  display:flex;align-items:center;justify-content:center;
+  box-shadow:0 0 10px rgba(100,206,251,0.2);
+}
+.logo-dot{width:9px;height:9px;border-radius:50%;background:#fff}
+.nav-center{display:flex;align-items:center;gap:2px}
+.nav-pill{
+  display:flex;align-items:center;gap:4px;
+  padding:6px 14px;border-radius:100px;
+  font-size:13px;color:var(--muted);text-decoration:none;
+  transition:all 0.2s;white-space:nowrap;
+}
+.nav-pill:hover{color:var(--ink);background:rgba(255,255,255,0.05)}
+.nav-right{display:flex;gap:8px}
+
+/* ── GLASSY BUTTON (from spec) ── */
+.btn-glass{
+  position:relative;overflow:hidden;
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:10px 20px;border-radius:100px;
+  font-size:13px;font-weight:500;font-family:'Inter',sans-serif;
+  color:var(--ink);cursor:pointer;border:none;
+  transition:all 0.25s;letter-spacing:-0.13px;
+  background:linear-gradient(135deg,rgba(255,255,255,0.1) 0%,rgba(255,255,255,0.04) 100%);
+  border:1px solid rgba(255,255,255,0.12);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.08) inset,
+    0 -1px 0 rgba(0,0,0,0.3) inset,
+    0 4px 16px rgba(0,0,0,0.3);
+}
+.btn-glass::before{
+  content:'';position:absolute;inset:0;
+  background:linear-gradient(135deg,rgba(255,255,255,0.08) 0%,transparent 60%);
+  border-radius:inherit;pointer-events:none;
+}
+.btn-glass:hover{
+  background:linear-gradient(135deg,rgba(255,255,255,0.14) 0%,rgba(255,255,255,0.06) 100%);
+  transform:translateY(-1px);
+  box-shadow:0 1px 0 rgba(255,255,255,0.1) inset,0 -1px 0 rgba(0,0,0,0.3) inset,0 8px 24px rgba(0,0,0,0.4);
+}
+.btn-cyan{
+  background:linear-gradient(135deg,rgba(100,206,251,0.25) 0%,rgba(100,206,251,0.1) 100%);
+  border:1px solid rgba(100,206,251,0.4);
+  color:var(--cyan);
+  box-shadow:0 0 20px rgba(100,206,251,0.15),0 1px 0 rgba(100,206,251,0.2) inset,0 4px 16px rgba(0,0,0,0.4);
+}
+.btn-cyan:hover{
+  background:linear-gradient(135deg,rgba(100,206,251,0.35) 0%,rgba(100,206,251,0.15) 100%);
+  box-shadow:0 0 30px rgba(100,206,251,0.25),0 1px 0 rgba(100,206,251,0.3) inset,0 8px 24px rgba(0,0,0,0.5);
+  transform:translateY(-1px);color:var(--cyan);
+}
+.btn-white{
+  background:rgba(255,255,255,0.95);color:#000;
+  border:1px solid rgba(255,255,255,0.2);
+  box-shadow:0 0 20px rgba(255,255,255,0.1),0 4px 16px rgba(0,0,0,0.4);
+}
+.btn-white:hover{background:#fff;transform:translateY(-1px);box-shadow:0 0 30px rgba(255,255,255,0.2),0 8px 24px rgba(0,0,0,0.5)}
+
+/* ── SECTIONS ── */
+section{padding:100px 40px;position:relative;z-index:1}
+.inner{max-width:1100px;margin:0 auto}
+.tag{
+  display:inline-flex;align-items:center;gap:6px;
+  padding:5px 14px;border-radius:100px;
+  font-size:12px;font-weight:500;letter-spacing:0.02em;
+  color:var(--cyan);
+  background:var(--cyan-dim);
+  border:1px solid var(--border-cyan);
+  margin-bottom:28px;
+}
+.tag-dot{width:6px;height:6px;border-radius:50%;background:var(--cyan);animation:blink 2s ease infinite}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+
+/* ── HERO ── */
+#home{min-height:100vh;display:flex;align-items:center;padding-top:80px}
+.hero-wrap{text-align:center;max-width:900px;margin:0 auto}
+.hero-eyebrow{
+  display:inline-flex;align-items:center;gap:8px;
+  padding:6px 16px;border-radius:100px;
+  font-size:13px;color:var(--muted);
+  background:rgba(255,255,255,0.04);
+  border:1px solid var(--border);
+  margin-bottom:40px;
+}
+.pulse-dot{width:8px;height:8px;border-radius:50%;background:var(--cyan);
+  box-shadow:0 0 6px var(--cyan);animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 6px var(--cyan)}50%{box-shadow:0 0 14px var(--cyan),0 0 28px rgba(100,206,251,0.3)}}
+
+.hero-h1{
+  font-size:clamp(52px,7vw,96px);font-weight:600;
+  line-height:0.95;letter-spacing:-0.04em;
+  color:var(--ink);margin-bottom:32px;
+}
+.hero-h1 .line2{
+  background:linear-gradient(135deg,var(--cyan) 0%,#a78bfa 60%,var(--cyan) 100%);
+  background-size:200% auto;
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  animation:shine 3s linear infinite;
+}
+@keyframes shine{0%{background-position:0% center}100%{background-position:200% center}}
+.hero-sub{
+  font-size:18px;color:var(--muted);line-height:1.6;
+  letter-spacing:-0.18px;max-width:580px;margin:0 auto 44px;
+}
+.hero-cta{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;margin-bottom:80px}
+/* TYPEWRITER */
+.typewriter-wrap{
+  display:inline-flex;align-items:center;gap:0;
+  font-size:clamp(52px,7vw,96px);font-weight:600;
+  line-height:0.95;letter-spacing:-0.04em;
+}
+.typewriter{color:var(--cyan);border-right:3px solid var(--cyan);padding-right:4px;animation:cursor 0.8s step-end infinite}
+@keyframes cursor{0%,100%{border-color:var(--cyan)}50%{border-color:transparent}}
+
+/* ── LOGO STRIP ── */
+.logo-strip{
+  border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+  padding:28px 40px;margin:0;
+  overflow:hidden;position:relative;z-index:1;
+}
+.logo-strip-inner{
+  display:flex;gap:64px;align-items:center;
+  animation:scroll 20s linear infinite;width:max-content;
+}
+@keyframes scroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.logo-item{font-size:14px;font-weight:600;color:rgba(255,255,255,0.25);letter-spacing:0.1em;text-transform:uppercase;white-space:nowrap}
+
+/* ── GLASS CARD ── */
+.glass-card{
+  background:linear-gradient(135deg,rgba(255,255,255,0.05) 0%,rgba(255,255,255,0.02) 100%);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:20px;
+  backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.06) inset,
+    0 -1px 0 rgba(0,0,0,0.2) inset,
+    0 8px 40px rgba(0,0,0,0.4);
+  transition:all 0.25s;
+}
+.glass-card:hover{
+  border-color:rgba(100,206,251,0.2);
+  box-shadow:
+    0 1px 0 rgba(255,255,255,0.08) inset,
+    0 -1px 0 rgba(0,0,0,0.2) inset,
+    0 0 0 1px rgba(100,206,251,0.08),
+    0 16px 60px rgba(0,0,0,0.5),
+    0 0 40px rgba(100,206,251,0.04);
+  transform:translateY(-3px);
+}
+.glass-card-cyan{
+  background:linear-gradient(135deg,rgba(100,206,251,0.08) 0%,rgba(100,206,251,0.02) 100%);
+  border:1px solid rgba(100,206,251,0.2);
+  border-radius:20px;
+  box-shadow:0 0 40px rgba(100,206,251,0.08),0 8px 40px rgba(0,0,0,0.4);
+}
+
+/* ── ABOUT ── */
+.about-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:56px}
+.about-card{padding:28px 30px}
+.about-icon{
+  width:40px;height:40px;border-radius:10px;
+  display:flex;align-items:center;justify-content:center;
+  font-size:20px;margin-bottom:18px;
+  background:rgba(100,206,251,0.08);border:1px solid rgba(100,206,251,0.15);
+}
+.about-title{font-size:16px;font-weight:600;color:var(--ink);letter-spacing:-0.3px;margin-bottom:10px}
+.about-body{font-size:14px;color:var(--muted);line-height:1.7;letter-spacing:-0.14px}
+/* SPOTLIGHT CARDS */
+.spotlight-row{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
+.sc{
+  border-radius:20px;padding:32px;min-height:200px;
+  display:flex;flex-direction:column;justify-content:space-between;
+  position:relative;overflow:hidden;cursor:default;
+  transition:transform 0.2s;
+}
+.sc:hover{transform:translateY(-4px)}
+.sc-violet{background:linear-gradient(135deg,#6a4cf5,#4a2fc7)}
+.sc-magenta{background:linear-gradient(135deg,#d44df0,#9020c8)}
+.sc-orange{background:linear-gradient(135deg,#ff7a3d,#e05010)}
+.sc-tag{display:inline-block;background:rgba(255,255,255,0.18);border-radius:100px;padding:4px 12px;font-size:12px;font-weight:500;color:#fff;align-self:flex-start}
+.sc-num{font-size:56px;font-weight:700;color:rgba(255,255,255,0.95);letter-spacing:-3px;line-height:1}
+.sc-label{font-size:15px;font-weight:500;color:rgba(255,255,255,0.85);margin-top:6px;letter-spacing:-0.3px}
+
+/* ── COURSES ── */
+.courses-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:56px}
+.course-card{padding:28px 30px;position:relative;overflow:hidden;cursor:pointer}
+.course-card::after{
+  content:'';position:absolute;inset:0;
+  background:radial-gradient(400px circle at 50% -10%,rgba(100,206,251,0.06),transparent 70%);
+  opacity:0;transition:opacity 0.3s;pointer-events:none;
+}
+.course-card:hover::after{opacity:1}
+.course-badge{
+  display:inline-block;font-size:11px;font-weight:600;
+  padding:3px 10px;border-radius:100px;margin-bottom:18px;letter-spacing:0.02em;
+}
+.course-level{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:0.08em;margin-bottom:8px}
+.course-title{font-size:18px;font-weight:600;color:var(--ink);letter-spacing:-0.4px;margin-bottom:10px}
+.course-desc{font-size:14px;color:var(--muted);line-height:1.7;letter-spacing:-0.14px;margin-bottom:22px}
+.course-footer{display:flex;align-items:center;justify-content:space-between}
+.course-link{
+  font-size:13px;font-weight:500;color:var(--cyan);
+  display:flex;align-items:center;gap:5px;
+  text-decoration:none;transition:gap 0.2s;
+}
+.course-card:hover .course-link{gap:8px}
+
+/* ── STATS SECTION ── */
+.stats-row{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;margin-top:56px}
+.stat-card{
+  padding:28px;text-align:center;
+  border-radius:16px;
+  background:linear-gradient(135deg,rgba(255,255,255,0.04) 0%,rgba(255,255,255,0.01) 100%);
+  border:1px solid rgba(255,255,255,0.07);
+  box-shadow:0 4px 24px rgba(0,0,0,0.3);
+}
+.stat-val{
+  font-size:36px;font-weight:700;letter-spacing:-2px;
+  background:linear-gradient(135deg,var(--cyan),#a78bfa);
+  -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
+  margin-bottom:6px;
+}
+.stat-lbl{font-size:13px;color:var(--muted);letter-spacing:-0.13px}
+
+/* ── ATLAS SECTION ── */
+.atlas-section{background:var(--bg);border-top:1px solid var(--border)}
+.atlas-layout{display:grid;grid-template-columns:360px 1fr;gap:16px;align-items:start;margin-top:56px}
+.atlas-glass{
+  background:rgba(8,8,8,0.9);
+  border:1px solid rgba(100,206,251,0.14);
+  border-radius:20px;
+  backdrop-filter:blur(32px);-webkit-backdrop-filter:blur(32px);
+  box-shadow:
+    0 1px 0 rgba(100,206,251,0.08) inset,
+    0 0 60px rgba(100,206,251,0.04),
+    0 16px 60px rgba(0,0,0,0.5);
+  overflow:hidden;
+}
+.panel-head{
+  padding:16px 20px;
+  border-bottom:1px solid rgba(100,206,251,0.08);
+  display:flex;align-items:center;gap:8px;
+  background:rgba(100,206,251,0.02);
+}
+.panel-title{font-size:13px;font-weight:500;color:var(--ink);letter-spacing:-0.13px}
+.live-badge{
+  margin-left:auto;display:flex;align-items:center;gap:5px;
+  font-size:11px;color:#22c55e;font-weight:500;
+}
+.live-dot{width:6px;height:6px;border-radius:50%;background:#22c55e;animation:pulse 2s infinite}
+.panel-body{padding:18px 20px}
+.ai-input{
+  width:100%;padding:10px 14px;border-radius:10px;
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.08);
+  color:var(--ink);font-size:14px;font-family:'Inter',sans-serif;
+  outline:none;transition:border-color 0.2s;margin-bottom:10px;
+  letter-spacing:-0.14px;
+}
+.ai-input:focus{border-color:rgba(100,206,251,0.4);box-shadow:0 0 0 3px rgba(100,206,251,0.06)}
+.ai-textarea{resize:none;min-height:88px;line-height:1.5}
+.ai-submit{
+  width:100%;padding:11px;border-radius:10px;
+  background:linear-gradient(135deg,rgba(100,206,251,0.15),rgba(100,206,251,0.06));
+  border:1px solid rgba(100,206,251,0.3);
+  color:var(--cyan);font-size:13px;font-weight:500;
+  font-family:'Inter',sans-serif;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  transition:all 0.2s;margin-top:14px;letter-spacing:-0.13px;
+  box-shadow:0 0 20px rgba(100,206,251,0.08),0 1px 0 rgba(100,206,251,0.15) inset;
+}
+.ai-submit:hover{
+  background:linear-gradient(135deg,rgba(100,206,251,0.25),rgba(100,206,251,0.1));
+  box-shadow:0 0 30px rgba(100,206,251,0.15),0 1px 0 rgba(100,206,251,0.2) inset;
+  transform:translateY(-1px);
+}
+.ai-submit:disabled{opacity:0.4;cursor:not-allowed;transform:none}
+
+/* PIPELINE */
+.pipe-step{display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid rgba(255,255,255,0.03)}
+.pipe-step:last-child{border:none}
+.p-dot{
+  width:20px;height:20px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:9px;flex-shrink:0;border:1px solid var(--border);
+  background:rgba(255,255,255,0.03);
+}
+.p-dot.done{border-color:rgba(34,197,94,0.5);background:rgba(34,197,94,0.1);color:#22c55e}
+.p-dot.active{border-color:rgba(100,206,251,0.5);background:rgba(100,206,251,0.1);color:var(--cyan);animation:glow-pulse 1.5s ease infinite}
+@keyframes glow-pulse{0%,100%{box-shadow:0 0 0 0 rgba(100,206,251,0.3)}50%{box-shadow:0 0 0 4px rgba(100,206,251,0.1)}}
+.p-label{font-size:12px;letter-spacing:-0.12px}
+.p-label.done{color:rgba(255,255,255,0.65)}
+.p-label.active{color:var(--ink)}
+.p-label.wait{color:var(--muted)}
+
+/* TABS */
+.tab-bar{display:flex;background:rgba(0,0,0,0.4);border-bottom:1px solid rgba(100,206,251,0.08)}
+.tab{
+  padding:13px 18px;font-size:12px;font-weight:500;color:var(--muted);
+  background:none;border:none;cursor:pointer;font-family:'Inter',sans-serif;
+  border-bottom:2px solid transparent;transition:all 0.15s;letter-spacing:-0.12px;
+}
+.tab.on{color:var(--cyan);border-bottom-color:var(--cyan);background:rgba(100,206,251,0.03)}
+.tab:hover:not(.on){color:var(--ink)}
+.tab-pane{height:460px;overflow-y:auto}
+.tab-pane::-webkit-scrollbar{width:3px}
+.tab-pane::-webkit-scrollbar-thumb{background:rgba(100,206,251,0.2);border-radius:2px}
+
+/* FEED */
+.feed-empty{height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;color:var(--muted)}
+.feed-empty-icon{font-size:40px;opacity:0.25}
+.ev{
+  display:flex;align-items:flex-start;gap:10px;padding:10px 16px;
+  border-bottom:1px solid rgba(255,255,255,0.025);
+  animation:ev-in 0.3s ease;
+}
+@keyframes ev-in{from{opacity:0;transform:translateX(8px)}to{opacity:1;transform:none}}
+.ev-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;margin-top:5px}
+.ev-kind{font-size:12px;font-weight:500;letter-spacing:-0.12px}
+.ev-meta{font-size:11px;color:var(--muted);margin-top:2px;letter-spacing:-0.11px}
+.ev-time{font-size:10px;color:rgba(255,255,255,0.2);margin-left:auto;flex-shrink:0;padding-top:2px}
+
+/* TIMELINE */
+.tl-wrap{padding:14px 16px;position:relative}
+.tl-line{position:absolute;left:21px;top:0;bottom:0;width:1px;background:linear-gradient(180deg,rgba(100,206,251,0.3),rgba(100,206,251,0.02))}
+.tl-item{display:flex;align-items:flex-start;gap:10px;margin-bottom:4px;padding:7px 0 7px 6px}
+.tl-d{width:10px;height:10px;border-radius:50%;flex-shrink:0;margin-top:5px;border:1.5px solid;box-shadow:0 0 5px currentColor}
+.tl-b{flex:1;min-width:0;background:rgba(255,255,255,0.02);border:1px solid rgba(255,255,255,0.04);border-radius:8px;padding:7px 10px}
+.tl-k{font-size:12px;font-weight:500;letter-spacing:-0.12px}
+.tl-p{font-size:11px;color:var(--muted);margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.tl-t{font-size:10px;color:rgba(255,255,255,0.18);flex-shrink:0;padding-top:5px}
+
+/* BUDGET */
+.bud-wrap{padding:18px}
+.bud-gauge{
+  background:rgba(100,206,251,0.04);border:1px solid rgba(100,206,251,0.1);
+  border-radius:14px;padding:18px;margin-bottom:14px;
+}
+.bud-row{display:flex;justify-content:space-between;align-items:baseline;margin-bottom:12px}
+.bud-val{font-size:26px;font-weight:600;color:var(--ink);letter-spacing:-1px}
+.bud-tot{font-size:13px;color:var(--muted)}
+.track{height:5px;border-radius:100px;background:rgba(255,255,255,0.06);overflow:hidden}
+.fill{height:100%;border-radius:100px;background:linear-gradient(90deg,var(--cyan),#a78bfa);transition:width 0.5s}
+.bud-pct-row{display:flex;justify-content:space-between;margin-top:5px}
+.bud-pct{font-size:11px;color:var(--muted)}
+.bud-stats{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:14px}
+.bs{
+  display:flex;align-items:center;gap:10px;
+  background:rgba(255,255,255,0.025);border:1px solid var(--border);
+  border-radius:12px;padding:12px;
+}
+.bs-icon{font-size:16px}
+.bs-val{font-size:16px;font-weight:600;color:var(--ink);letter-spacing:-0.5px;line-height:1}
+.bs-lbl{font-size:11px;color:var(--muted);margin-top:2px;letter-spacing:-0.11px}
+.bud-note{
+  background:rgba(255,255,255,0.02);border:1px solid var(--border);
+  border-radius:10px;padding:12px;
+  font-size:12px;color:var(--muted);line-height:1.6;
+}
+
+/* DAG */
+.dag-wrap{padding:16px}
+.w-row{margin-bottom:14px}
+.w-lbl{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:0.06em;margin-bottom:7px}
+.w-nodes{display:flex;flex-wrap:wrap;gap:6px}
+.wn{padding:4px 12px;border-radius:8px;font-size:12px;font-weight:500;transition:all 0.25s}
+.wn.waiting{background:rgba(255,255,255,0.04);border:1px solid var(--border);color:var(--muted)}
+.wn.running{background:rgba(100,206,251,0.1);border:1px solid rgba(100,206,251,0.4);color:var(--cyan);animation:glow-pulse 1.5s ease infinite}
+.wn.passed{background:rgba(34,197,94,0.1);border:1px solid rgba(34,197,94,0.4);color:#22c55e}
+.wn.failed{background:rgba(239,68,68,0.1);border:1px solid rgba(239,68,68,0.4);color:#ef4444}
+
+/* FOOTER */
+footer{
+  background:var(--bg);border-top:1px solid var(--border);
+  padding:60px 40px 40px;position:relative;z-index:1;
+}
+.footer-grid{display:grid;grid-template-columns:180px repeat(4,1fr);gap:40px;max-width:1100px;margin:0 auto}
+.f-logo-text{font-size:14px;font-weight:600;color:var(--ink);margin-bottom:10px}
+.f-desc{font-size:13px;color:var(--muted);line-height:1.7;letter-spacing:-0.13px}
+.f-head{font-size:13px;font-weight:600;color:var(--ink);letter-spacing:-0.13px;margin-bottom:14px}
+.f-link{display:block;font-size:13px;color:var(--muted);text-decoration:none;margin-bottom:9px;letter-spacing:-0.13px;transition:color 0.15s}
+.f-link:hover{color:var(--ink)}
+.footer-bot{max-width:1100px;margin:40px auto 0;padding-top:20px;border-top:1px solid var(--border);display:flex;justify-content:space-between}
+.f-copy{font-size:12px;color:rgba(255,255,255,0.3);letter-spacing:-0.12px}
+
+/* SCROLL REVEAL */
+.reveal{opacity:0;transform:translateY(28px);transition:all 0.65s cubic-bezier(0.22,1,0.36,1)}
+.reveal.in{opacity:1;transform:none}
+
+/* STATUS BADGE */
+.s-badge{font-size:11px;font-weight:500;padding:3px 10px;border-radius:100px;margin-left:auto}
+</style>
+</head>
+<body>
+
+<div class="grid-bg"></div>
+<div class="orb"></div>
+<div class="orb2"></div>
+<div class="orb3"></div>
+
+<!-- NAV -->
+<nav>
+  <a class="nav-logo" href="#home">
+    <div class="logo-ring"><div class="logo-dot"></div></div>
+    <span style="font-size:14px;font-weight:600;letter-spacing:-0.3px">DesignPro</span>
+  </a>
+  <div class="nav-center">
+    <a class="nav-pill" href="#home">Home</a>
+    <a class="nav-pill" href="#about">About</a>
+    <a class="nav-pill" href="#courses">Courses</a>
+    <a class="nav-pill" href="#atlas">ATLAS AI</a>
+    <a class="nav-pill" href="#contact">Contact →</a>
+  </div>
+  <div class="nav-right">
+    <button class="btn-glass">Sign in</button>
+    <button class="btn-glass btn-white">Apply now</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section id="home">
+  <div class="hero-wrap reveal">
+    <div class="hero-eyebrow">
+      <div class="pulse-dot"></div>
+      Seats for Next Program Opening Soon
+    </div>
+    <h1 class="hero-h1">
+      Become a<br>
+      <span class="typewriter-wrap">
+        <span class="line2" id="typewriter-text" style="background:linear-gradient(135deg,#64CEFB 0%,#a78bfa 60%,#64CEFB 100%);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shine 3s linear infinite"></span><span class="typewriter" id="tw-cursor">|</span>
+      </span>
+    </h1>
+    <p class="hero-sub">We deliver transformative programs that empower emerging product designers with cutting-edge expertise and vision to thrive globally.</p>
+    <div class="hero-cta">
+      <button class="btn-glass btn-white" style="padding:12px 28px;font-size:14px">
+        Apply for Next Enrollment
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="transition:transform 0.2s" id="arrow-icon"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+      </button>
+      <button class="btn-glass btn-cyan" style="padding:12px 28px;font-size:14px">Watch Demo ↗</button>
+    </div>
+    <p style="font-size:13px;color:var(--muted)">8,000+ designers launched · 94% placement rate · 120+ partners</p>
+  </div>
+</section>
+
+<!-- LOGO STRIP -->
+<div class="logo-strip">
+  <div class="logo-strip-inner">
+    <span class="logo-item">Figma</span><span class="logo-item">Google</span><span class="logo-item">Meta</span>
+    <span class="logo-item">Airbnb</span><span class="logo-item">Stripe</span><span class="logo-item">Linear</span>
+    <span class="logo-item">Vercel</span><span class="logo-item">Notion</span><span class="logo-item">Atlassian</span>
+    <span class="logo-item">Figma</span><span class="logo-item">Google</span><span class="logo-item">Meta</span>
+    <span class="logo-item">Airbnb</span><span class="logo-item">Stripe</span><span class="logo-item">Linear</span>
+    <span class="logo-item">Vercel</span><span class="logo-item">Notion</span><span class="logo-item">Atlassian</span>
+  </div>
+</div>
+
+<!-- STATS -->
+<section style="padding:80px 40px">
+  <div class="inner">
+    <div class="stats-row reveal">
+      <div class="stat-card"><div class="stat-val">8K+</div><div class="stat-lbl">Alumni Globally</div></div>
+      <div class="stat-card"><div class="stat-val">94%</div><div class="stat-lbl">Placement Rate</div></div>
+      <div class="stat-card"><div class="stat-val">120+</div><div class="stat-lbl">Industry Partners</div></div>
+      <div class="stat-card"><div class="stat-val">4.9★</div><div class="stat-lbl">Average Rating</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section id="about" style="background:var(--bg);border-top:1px solid var(--border)">
+  <div class="inner">
+    <div class="reveal">
+      <div class="tag"><div class="tag-dot"></div>About DesignPro</div>
+      <h2 style="font-size:clamp(40px,4.5vw,72px);font-weight:600;line-height:0.95;letter-spacing:-0.04em;color:var(--ink);margin-bottom:20px">
+        Where Product<br>
+        Designers Are <span style="background:linear-gradient(135deg,#64CEFB,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Made.</span>
+      </h2>
+      <p style="font-size:17px;color:var(--muted);line-height:1.6;max-width:540px;letter-spacing:-0.17px">We deliver transformative programs that empower emerging product designers with cutting-edge expertise and the vision to thrive globally.</p>
+    </div>
+    <div class="about-grid reveal" style="animation-delay:0.1s">
+      <div class="glass-card about-card">
+        <div class="about-icon">🌍</div>
+        <div class="about-title">Global Vision</div>
+        <div class="about-body">We train designers to think beyond borders — preparing them for world-class studios, startups, and Fortune 500 product teams.</div>
+      </div>
+      <div class="glass-card about-card">
+        <div class="about-icon">🏆</div>
+        <div class="about-title">Industry-Led</div>
+        <div class="about-body">Every module built with active product leaders. No theory without practice. No practice without industry validation.</div>
+      </div>
+      <div class="glass-card about-card">
+        <div class="about-icon">👥</div>
+        <div class="about-title">8,000+ Alumni</div>
+        <div class="about-body">A thriving global network spanning 40+ countries. Alumni lead design at Figma, Google, Meta, and hundreds of startups.</div>
+      </div>
+      <div class="glass-card about-card">
+        <div class="about-icon">⚡</div>
+        <div class="about-title">Future-Ready</div>
+        <div class="about-body">From AI-powered design tools to emerging UX paradigms — our curriculum evolves every quarter with the industry.</div>
+      </div>
+    </div>
+    <div class="spotlight-row reveal" style="animation-delay:0.15s">
+      <div class="sc sc-violet">
+        <div class="sc-tag">Alumni</div>
+        <div><div class="sc-num">8K+</div><div class="sc-label">Designers launched globally</div></div>
+      </div>
+      <div class="sc sc-magenta">
+        <div class="sc-tag">Placement</div>
+        <div><div class="sc-num">94%</div><div class="sc-label">Placed within 6 months</div></div>
+      </div>
+      <div class="sc sc-orange">
+        <div class="sc-tag">Rating</div>
+        <div><div class="sc-num">4.9★</div><div class="sc-label">From 3,200+ reviews</div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COURSES -->
+<section id="courses" style="background:var(--bg);border-top:1px solid var(--border)">
+  <div class="inner">
+    <div class="reveal">
+      <div class="tag"><div class="tag-dot"></div>Our Programs</div>
+      <h2 style="font-size:clamp(40px,4.5vw,72px);font-weight:600;line-height:0.95;letter-spacing:-0.04em;color:var(--ink);margin-bottom:20px">
+        Design Your <span style="background:linear-gradient(135deg,#64CEFB,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Future.</span>
+      </h2>
+      <p style="font-size:17px;color:var(--muted);line-height:1.6;max-width:480px;letter-spacing:-0.17px">Structured learning paths for every stage — from first principles to senior product leadership.</p>
+    </div>
+    <div class="courses-grid reveal" style="animation-delay:0.1s">
+      <div class="glass-card course-card">
+        <span class="course-badge" style="background:rgba(100,206,251,0.1);color:var(--cyan);border:1px solid rgba(100,206,251,0.25)">Most Popular</span>
+        <div class="course-level">Foundation</div>
+        <div class="course-title">Product Design Essentials</div>
+        <div class="course-desc">Master fundamentals — user research, wireframing, prototyping, and design systems from day one.</div>
+        <div class="course-footer">
+          <span style="font-size:12px;color:var(--muted)">8 weeks · Cohort</span>
+          <a class="course-link" href="#">Learn more →</a>
+        </div>
+      </div>
+      <div class="glass-card course-card">
+        <span class="course-badge" style="background:rgba(34,197,94,0.1);color:#22c55e;border:1px solid rgba(34,197,94,0.25)">New Cohort</span>
+        <div class="course-level">Intermediate</div>
+        <div class="course-title">UX Strategy &amp; Systems</div>
+        <div class="course-desc">From atomic design to enterprise-scale systems. Build components that scale across millions of users.</div>
+        <div class="course-footer">
+          <span style="font-size:12px;color:var(--muted)">10 weeks · Live</span>
+          <a class="course-link" href="#">Learn more →</a>
+        </div>
+      </div>
+      <div class="glass-card course-card">
+        <span class="course-badge" style="background:rgba(245,158,11,0.1);color:#f59e0b;border:1px solid rgba(245,158,11,0.25)">Limited Seats</span>
+        <div class="course-level">Advanced</div>
+        <div class="course-title">Product Leadership</div>
+        <div class="course-desc">Lead cross-functional teams, drive product vision, and ship work that moves metrics at scale.</div>
+        <div class="course-footer">
+          <span style="font-size:12px;color:var(--muted)">12 weeks · Mentorship</span>
+          <a class="course-link" href="#">Learn more →</a>
+        </div>
+      </div>
+      <div class="glass-card course-card" style="background:linear-gradient(135deg,rgba(100,206,251,0.05),rgba(167,139,250,0.03));border-color:rgba(100,206,251,0.15)">
+        <span class="course-badge" style="background:rgba(167,139,250,0.1);color:#a78bfa;border:1px solid rgba(167,139,250,0.25)">2026 Launch</span>
+        <div class="course-level">Specialization</div>
+        <div class="course-title">AI-Powered Design</div>
+        <div class="course-desc">Prompt engineering for designers, AI tools integration, and building the future of human-AI interfaces.</div>
+        <div class="course-footer">
+          <span style="font-size:12px;color:var(--muted)">6 weeks · Self-paced</span>
+          <a class="course-link" href="#" style="color:#a78bfa">Join waitlist →</a>
+        </div>
+      </div>
+    </div>
+    <div style="text-align:center;margin-top:40px" class="reveal">
+      <button class="btn-glass" style="padding:12px 32px;font-size:14px">View all programs →</button>
+    </div>
+  </div>
+</section>
+
+<!-- ATLAS -->
+<section id="atlas" class="atlas-section">
+  <div class="inner">
+    <div class="reveal" style="text-align:center;margin-bottom:56px">
+      <div class="tag" style="margin:0 auto 24px"><div class="tag-dot"></div>ATLAS Multi-Agent System</div>
+      <h2 style="font-size:clamp(40px,4.5vw,72px);font-weight:600;line-height:0.95;letter-spacing:-0.04em;color:var(--ink);margin-bottom:18px">
+        Watch AI Build<br>
+        <span style="background:linear-gradient(135deg,#64CEFB,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">Itself.</span>
+      </h2>
+      <p style="font-size:17px;color:var(--muted);line-height:1.6;max-width:580px;margin:0 auto;letter-spacing:-0.17px">Submit a task. The Intelligence Router scores it, Architect decomposes into a DAG, parallel agents write, test, and self-heal — live.</p>
+    </div>
+    <div class="atlas-layout reveal">
+      <!-- LEFT -->
+      <div style="display:flex;flex-direction:column;gap:14px">
+        <div class="atlas-glass">
+          <div class="panel-head">
+            <span style="font-size:13px">⌨</span>
+            <span class="panel-title">Submit Task</span>
+            <div class="live-badge" id="ws-badge" style="display:none"><div class="live-dot"></div>Live</div>
+          </div>
+          <div class="panel-body">
+            <input id="t-title" class="ai-input" placeholder="Task title..." value="Build a binary search tree"/>
+            <textarea id="t-desc" class="ai-input ai-textarea" placeholder="Describe what to build...">Implement a Binary Search Tree class in Python with: insert(val), search(val) returning True/False, delete(val), inorder() returning sorted list, and height() returning tree height. Handle edge cases like empty tree and duplicate values.</textarea>
+            <button id="sub-btn" class="ai-submit" onclick="submitTask()">
+              <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg>
+              Run ATLAS Pipeline
+            </button>
+          </div>
+        </div>
+        <div id="status-card" class="atlas-glass" style="display:none">
+          <div class="panel-head">
+            <span style="font-size:13px">📊</span>
+            <span class="panel-title">Status</span>
+            <span id="s-badge" class="s-badge"></span>
+          </div>
+          <div class="panel-body">
+            <div id="task-id-el" style="font-size:11px;color:var(--muted);font-family:monospace;word-break:break-all;margin-bottom:14px"></div>
+            <div>
+              <div class="pipe-step"><div class="p-dot" id="d-pending">·</div><span class="p-label wait" id="l-pending">Pending</span></div>
+              <div class="pipe-step"><div class="p-dot" id="d-planning">·</div><span class="p-label wait" id="l-planning">Intelligence Router + Architect</span></div>
+              <div class="pipe-step"><div class="p-dot" id="d-coding">·</div><span class="p-label wait" id="l-coding">Coding (parallel agents)</span></div>
+              <div class="pipe-step"><div class="p-dot" id="d-verifying">·</div><span class="p-label wait" id="l-verifying">Verifying (sandbox)</span></div>
+              <div class="pipe-step"><div class="p-dot" id="d-completed">·</div><span class="p-label wait" id="l-completed">Completed</span></div>
+            </div>
+          </div>
+        </div>
+        <div id="dag-card" class="atlas-glass" style="display:none">
+          <div class="panel-head">
+            <span style="font-size:13px">🔀</span>
+            <span class="panel-title">Execution DAG</span>
+            <span id="dag-wc" style="margin-left:auto;font-size:11px;color:var(--muted)"></span>
+          </div>
+          <div class="panel-body dag-wrap" id="dag-body"></div>
+        </div>
+      </div>
+      <!-- RIGHT -->
+      <div class="atlas-glass" style="display:flex;flex-direction:column;min-height:540px;overflow:hidden">
+        <div class="tab-bar">
+          <button class="tab on" onclick="switchTab('feed',this)">⚡ Live Feed</button>
+          <button class="tab" onclick="switchTab('tl',this)">🔀 DAG Timeline</button>
+          <button class="tab" onclick="switchTab('bud',this)">📊 Budget</button>
+        </div>
+        <div id="pane-feed" class="tab-pane">
+          <div id="feed-empty" class="feed-empty"><div class="feed-empty-icon">⚡</div><div style="font-size:13px">Submit a task to see live agent events</div></div>
+          <div id="feed-events"></div>
+        </div>
+        <div id="pane-tl" class="tab-pane" style="display:none">
+          <div id="tl-empty" class="feed-empty"><div class="feed-empty-icon">🔀</div><div style="font-size:13px">Timeline appears after task starts</div></div>
+          <div id="tl-wrap" style="display:none" class="tl-wrap"><div class="tl-line"></div><div id="tl-items"></div></div>
+        </div>
+        <div id="pane-bud" class="tab-pane" style="display:none">
+          <div id="bud-empty" class="feed-empty"><div class="feed-empty-icon">📊</div><div style="font-size:13px">Budget data appears after task starts</div></div>
+          <div id="bud-content" class="bud-wrap" style="display:none"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer id="contact">
+  <div class="footer-grid">
+    <div>
+      <div class="f-logo-text">DesignPro</div>
+      <div class="f-desc">Transformative product design education for the next generation of leaders.</div>
+    </div>
+    <div><div class="f-head">Programs</div><a class="f-link" href="#">Essentials</a><a class="f-link" href="#">UX Strategy</a><a class="f-link" href="#">Leadership</a><a class="f-link" href="#">AI Design</a></div>
+    <div><div class="f-head">Company</div><a class="f-link" href="#">About</a><a class="f-link" href="#">Blog</a><a class="f-link" href="#">Careers</a><a class="f-link" href="#">Press</a></div>
+    <div><div class="f-head">Community</div><a class="f-link" href="#">Alumni</a><a class="f-link" href="#">Events</a><a class="f-link" href="#">Discord</a><a class="f-link" href="#">Mentorship</a></div>
+    <div><div class="f-head">Legal</div><a class="f-link" href="#">Privacy</a><a class="f-link" href="#">Terms</a><a class="f-link" href="#">Cookies</a></div>
+  </div>
+  <div class="footer-bot">
+    <span class="f-copy">© 2026 DesignPro. All rights reserved.</span>
+    <span class="f-copy">Powered by ATLAS multi-agent system</span>
+  </div>
+</footer>
+
+<script>
+// ── TYPEWRITER ──
+const words=['Product Leader.','UX Expert.','Design Pioneer.','Future Maker.','Creative Visionary.'];
+let wi=0,ci=0,deleting=false,pause=false;
+const tw=document.getElementById('typewriter-text');
+function type(){
+  if(pause){setTimeout(type,1800);pause=false;return}
+  const w=words[wi];
+  if(!deleting){
+    ci++;tw.textContent=w.slice(0,ci);
+    if(ci===w.length){pause=true;deleting=true;setTimeout(type,1800);return}
+    setTimeout(type,80);
+  } else {
+    ci--;tw.textContent=w.slice(0,ci);
+    if(ci===0){deleting=false;wi=(wi+1)%words.length}
+    setTimeout(type,40);
+  }
+}
+type();
+
+// ── SCROLL REVEAL ──
+const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting)e.target.classList.add('in')})},{threshold:0.08});
+document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
+
+// ── ATLAS BACKEND ──
+const API='http://localhost:8000';
+const KIND_C={'task.accepted':'#64CEFB','task.complexity_scored':'#a78bfa','task.plan_created':'#34d399','task.completed':'#22c55e','task.failed':'#ef4444','wave.started':'#f59e0b','wave.completed':'#34d399','subtask.started':'#64CEFB','subtask.passed':'#22c55e','subtask.failed':'#ef4444','subtask.retry':'#f97316','agent.called':'#a78bfa','agent.responded':'#34d399','subtask.verified':'#34d399'};
+let ws2=null,poll=null,curId=null;
+function kc(k){return KIND_C[k]||'#64CEFB'}
+
+function switchTab(id,btn){
+  document.querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));btn.classList.add('on');
+  ['feed','tl','bud'].forEach(t=>document.getElementById('pane-'+t).style.display=t===id?'block':'none');
+}
+
+function setStatus(s){
+  const sb=document.getElementById('s-badge');
+  const cm={pending:'#64CEFB',planning:'#a78bfa',coding:'#f59e0b',verifying:'#34d399',retry:'#f97316',completed:'#22c55e',failed:'#ef4444'};
+  const c=cm[s]||'#64CEFB';
+  sb.textContent=s.charAt(0).toUpperCase()+s.slice(1);
+  sb.style.background=c+'18';sb.style.color=c;sb.style.border=`1px solid ${c}40`;
+  const ord=['pending','planning','coding','verifying','completed'];
+  const all=['pending','planning','coding','verifying','completed','retry','failed'];
+  const ci2=all.indexOf(s);
+  ord.forEach(st=>{
+    const si=all.indexOf(st);
+    const dot=document.getElementById('d-'+st);const lbl=document.getElementById('l-'+st);
+    if(!dot)return;
+    if(ci2>si){dot.className='p-dot done';dot.textContent='✓';lbl.className='p-label done'}
+    else if(ci2===si){dot.className='p-dot active';dot.textContent='◉';lbl.className='p-label active'}
+    else{dot.className='p-dot';dot.textContent='·';lbl.className='p-label wait'}
+  });
+}
+
+function addFeedEv(ev){
+  document.getElementById('feed-empty').style.display='none';
+  const c=document.getElementById('feed-events');
+  const col=kc(ev.event);
+  const t=new Date(ev.timestamp||Date.now()).toLocaleTimeString();
+  const ag=ev.data&&ev.data.agent?` [${ev.data.agent}]`:'';
+  const st=ev.data&&ev.data.status?`<div class="ev-meta">→ ${ev.data.status}</div>`:'';
+  const wv=ev.data&&ev.data.wave!=null?`<div class="ev-meta">wave ${ev.data.wave}</div>`:'';
+  const msg=ev.data&&ev.data.message?`<div class="ev-meta">${String(ev.data.message).slice(0,70)}</div>`:'';
+  const el=document.createElement('div');el.className='ev';
+  el.innerHTML=`<div class="ev-dot" style="background:${col};box-shadow:0 0 5px ${col}70"></div><div style="flex:1;min-width:0"><div style="display:flex;align-items:center;gap:5px"><span class="ev-kind" style="color:${col}">${ev.event}</span>${ag?`<span style="font-size:11px;color:var(--muted)">${ag}</span>`:''}</div>${st}${wv}${msg}</div><span class="ev-time">${t}</span>`;
+  c.appendChild(el);c.parentElement.scrollTop=c.parentElement.scrollHeight;
+}
+
+function renderTL(evs){
+  if(!evs||!evs.length)return;
+  document.getElementById('tl-empty').style.display='none';
+  const w=document.getElementById('tl-wrap');w.style.display='block';
+  const items=document.getElementById('tl-items');items.innerHTML='';
+  evs.forEach(e=>{
+    const col=kc(e.kind);const t=new Date(e.timestamp).toLocaleTimeString();
+    const pl=e.payload&&Object.keys(e.payload).length?Object.entries(e.payload).slice(0,3).map(([k,v])=>`${k}: ${JSON.stringify(v)}`).join(' · '):'';
+    const wv=e.wave!=null?`<span style="font-size:10px;color:var(--muted);margin-left:5px">wave ${e.wave}</span>`:'';
+    const sb=e.subtask_id?`<span style="font-size:10px;color:var(--muted);margin-left:5px">${e.subtask_id}</span>`:'';
+    const el=document.createElement('div');el.className='tl-item';
+    el.innerHTML=`<div class="tl-d" style="color:${col};border-color:${col};background:${col}18"></div><div class="tl-b"><div style="display:flex;align-items:center"><span class="tl-k" style="color:${col}">${e.kind}</span>${wv}${sb}</div>${pl?`<div class="tl-p">${pl}</div>`:''}</div><span class="tl-t">${t}</span>`;
+    items.appendChild(el);
+  });
+}
+
+function renderDAG(evs){
+  const wm={};const ss={};
+  evs.forEach(e=>{
+    if(e.kind==='wave.started'&&e.wave!=null)wm[e.wave]=(e.payload&&e.payload.node_ids)||[];
+    if(e.subtask_id){
+      if(e.kind==='subtask.passed')ss[e.subtask_id]='passed';
+      else if(e.kind==='subtask.failed')ss[e.subtask_id]='failed';
+      else if(e.kind==='subtask.started'&&!ss[e.subtask_id])ss[e.subtask_id]='running';
+    }
+  });
+  const wc=Object.keys(wm).length;if(!wc)return;
+  document.getElementById('dag-card').style.display='block';
+  document.getElementById('dag-wc').textContent=`${wc} waves`;
+  const body=document.getElementById('dag-body');body.innerHTML='';
+  Object.entries(wm).sort((a,b)=>+a[0]-+b[0]).forEach(([w,nodes])=>{
+    const row=document.createElement('div');row.className='w-row';
+    row.innerHTML=`<div class="w-lbl">Wave ${w}${nodes.length>1?' · parallel':''}</div>`;
+    const nw=document.createElement('div');nw.className='w-nodes';
+    nodes.forEach(id=>{const st=ss[id]||'waiting';const n=document.createElement('div');n.className=`wn ${st}`;n.textContent=id+(st==='running'?' •':'');nw.appendChild(n)});
+    row.appendChild(nw);body.appendChild(row);
+  });
+}
+
+function renderBudget(b){
+  if(!b)return;
+  document.getElementById('bud-empty').style.display='none';
+  const c=document.getElementById('bud-content');c.style.display='flex';
+  const pct=Math.min((b.spent_usd/b.budget_usd)*100,100);
+  c.innerHTML=`
+    <div class="bud-gauge">
+      <div class="bud-row"><span class="bud-val">$${b.spent_usd.toFixed(6)}</span><span class="bud-tot">/ $${b.budget_usd}</span></div>
+      <div class="track"><div class="fill" style="width:${pct.toFixed(1)}%"></div></div>
+      <div class="bud-pct-row"><span class="bud-pct">${pct.toFixed(1)}% used</span><span class="bud-pct">$${(b.budget_usd-b.spent_usd).toFixed(4)} left</span></div>
+    </div>
+    <div class="bud-stats">
+      <div class="bs"><span class="bs-icon" style="color:#64CEFB">💻</span><div><div class="bs-val">${b.llm_calls}</div><div class="bs-lbl">LLM Calls</div></div></div>
+      <div class="bs"><span class="bs-icon" style="color:#a78bfa">📥</span><div><div class="bs-val">${(b.tokens_in||0).toLocaleString()}</div><div class="bs-lbl">Tokens In</div></div></div>
+      <div class="bs"><span class="bs-icon" style="color:#34d399">📤</span><div><div class="bs-val">${(b.tokens_out||0).toLocaleString()}</div><div class="bs-lbl">Tokens Out</div></div></div>
+      <div class="bs"><span class="bs-icon" style="color:${b.tier_downgrades>0?'#f59e0b':'#22c55e'}">⚡</span><div><div class="bs-val">${b.tier_downgrades}</div><div class="bs-lbl">Downgrades</div></div></div>
+    </div>
+    <div class="bud-note"><span style="color:var(--cyan)">Groq free tier</span> — token usage tracked as budget proxy. The Governor downgrades model tiers at 70%+ budget to stay within limits.</div>`;
+}
+
+async function pollData(id){
+  try{
+    const[a,b]=await Promise.all([fetch(`${API}/tasks/${id}/timeline`),fetch(`${API}/tasks/${id}/budget`)]);
+    if(a.ok){const d=await a.json();setStatus(d.status||'pending');renderTL(d.events||[]);renderDAG(d.events||[])}
+    if(b.ok){const d=await b.json();renderBudget(d)}
+  }catch(e){}
+}
+
+function connectWS(id){
+  if(ws2)ws2.close();
+  try{
+    ws2=new WebSocket(`ws://localhost:8000/ws/${id}`);
+    ws2.onopen=()=>{document.getElementById('ws-badge').style.display='flex'};
+    ws2.onclose=()=>{document.getElementById('ws-badge').style.display='none'};
+    ws2.onmessage=(e)=>{
+      try{
+        const ev=JSON.parse(e.data);if(ev.event==='connection.established')return;
+        addFeedEv(ev);
+        if(ev.data&&ev.data.status)setStatus(ev.data.status);
+        if(['task.updated','agent.completed','test.result','step.result','cost.update','subtask.passed','subtask.failed'].includes(ev.event))pollData(id);
+      }catch(err){}
+    };
+  }catch(e){}
+}
+
+async function submitTask(){
+  const title=document.getElementById('t-title').value.trim();
+  const desc=document.getElementById('t-desc').value.trim();
+  if(!title||!desc)return;
+  const btn=document.getElementById('sub-btn');
+  btn.disabled=true;btn.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin 1s linear infinite"><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0"/></svg> Submitting...';
+  document.getElementById('feed-events').innerHTML='';document.getElementById('feed-empty').style.display='flex';
+  document.getElementById('tl-items').innerHTML='';document.getElementById('tl-empty').style.display='flex';document.getElementById('tl-wrap').style.display='none';
+  document.getElementById('bud-content').style.display='none';document.getElementById('bud-empty').style.display='flex';
+  document.getElementById('dag-card').style.display='none';
+  try{
+    const r=await fetch(`${API}/tasks`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title,description:desc,language:'python',max_retries:3,budget_usd:2.0})});
+    if(!r.ok)throw new Error();
+    const d=await r.json();
+    curId=d.task_id;
+    document.getElementById('status-card').style.display='block';
+    document.getElementById('task-id-el').textContent=d.task_id;
+    setStatus('pending');connectWS(d.task_id);
+    if(poll)clearInterval(poll);
+    poll=setInterval(()=>pollData(d.task_id),2000);
+    btn.disabled=false;btn.innerHTML='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg> Run ATLAS Pipeline';
+  }catch(e){
+    btn.disabled=false;btn.innerHTML='⚠ Backend offline — start atlas server first';
+    setTimeout(()=>{btn.disabled=false;btn.innerHTML='<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 2L11 13M22 2l-7 20-4-9-9-4 20-7z"/></svg> Run ATLAS Pipeline'},3000);
+  }
+}
+const sty=document.createElement('style');sty.textContent='@keyframes spin{from{transform:rotate(0)}to{transform:rotate(360deg)}}';document.head.appendChild(sty);
+</script>
+</body>
+</html>
