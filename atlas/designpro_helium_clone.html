@@ -878,7 +878,7 @@ async function pollData(id){
 function connectWS(id){
   if(ws2)ws2.close();
   try{
-    ws2=new WebSocket(`ws://localhost:8000/ws/${id}`);
+    ws2=new WebSocket(`wss://atlas-v9x1.onrender.com/ws/${id}`);
     ws2.onopen=()=>{document.getElementById('ws-badge').style.display='flex'};
     ws2.onclose=()=>{document.getElementById('ws-badge').style.display='none'};
     ws2.onmessage=(e)=>{
