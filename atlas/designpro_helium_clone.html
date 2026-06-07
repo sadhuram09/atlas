@@ -699,6 +699,7 @@ footer{
           <button class="tab on" onclick="switchTab('feed',this)">⚡ Live Feed</button>
           <button class="tab" onclick="switchTab('tl',this)">🔀 DAG Timeline</button>
           <button class="tab" onclick="switchTab('bud',this)">📊 Budget</button>
+          <button class="tab" onclick="switchTab('res',this)">💻 Results</button>
         </div>
         <div id="pane-feed" class="tab-pane">
           <div id="feed-empty" class="feed-empty"><div class="feed-empty-icon">⚡</div><div style="font-size:13px">Submit a task to see live agent events</div></div>
@@ -711,6 +712,10 @@ footer{
         <div id="pane-bud" class="tab-pane" style="display:none">
           <div id="bud-empty" class="feed-empty"><div class="feed-empty-icon">📊</div><div style="font-size:13px">Budget data appears after task starts</div></div>
           <div id="bud-content" class="bud-wrap" style="display:none"></div>
+        </div>
+        <div id="pane-res" class="tab-pane" style="display:none">
+          <div id="res-empty" class="feed-empty"><div class="feed-empty-icon">💻</div><div style="font-size:13px">Generated code appears after task completes</div></div>
+          <div id="res-content" style="padding:14px;display:none"></div>
         </div>
       </div>
     </div>
@@ -767,7 +772,7 @@ function kc(k){return KIND_C[k]||'#64CEFB'}
 
 function switchTab(id,btn){
   document.querySelectorAll('.tab').forEach(b=>b.classList.remove('on'));btn.classList.add('on');
-  ['feed','tl','bud'].forEach(t=>document.getElementById('pane-'+t).style.display=t===id?'block':'none');
+  ['feed','tl','bud','res'].forEach(t=>document.getElementById('pane-'+t).style.display=t===id?'block':'none');
 }
 
 function setStatus(s){
@@ -873,7 +878,7 @@ async function pollData(id){
 function connectWS(id){
   if(ws2)ws2.close();
   try{
-    ws2=new WebSocket(`wss://atlas-v9x1.onrender.com/ws/${id}`);
+    ws2=new WebSocket(`ws://localhost:8000/ws/${id}`);
     ws2.onopen=()=>{document.getElementById('ws-badge').style.display='flex'};
     ws2.onclose=()=>{document.getElementById('ws-badge').style.display='none'};
     ws2.onmessage=(e)=>{
@@ -882,8 +887,45 @@ function connectWS(id){
         addFeedEv(ev);
         if(ev.data&&ev.data.status)setStatus(ev.data.status);
         if(['task.updated','agent.completed','test.result','step.result','cost.update','subtask.passed','subtask.failed'].includes(ev.event))pollData(id);
+        if(ev.event==='task.updated'&&ev.data&&ev.data.status==='completed')fetchAndRenderResults(id);
       }catch(err){}
     };
+  }catch(e){}
+}
+
+async function fetchAndRenderResults(id){
+  try{
+    const r = await fetch(`${API}/tasks/${id}`);
+    if(!r.ok) return;
+    const d = await r.json();
+    const artifacts = d.artifacts || [];
+    if(!artifacts.length) return;
+    document.getElementById('res-empty').style.display='none';
+    const c = document.getElementById('res-content');
+    c.style.display='block';
+    c.innerHTML='';
+    // dedupe by filename+checksum, prefer last unique filename
+    const seen = {};
+    artifacts.forEach(a=>{ seen[a.filename+a.checksum]=a; });
+    const unique = Object.values(seen);
+    // group by filename, show solution files first
+    const sols = unique.filter(a=>!a.filename.startsWith('test_'));
+    const tests = unique.filter(a=>a.filename.startsWith('test_'));
+    const ordered = [...sols, ...tests];
+    ordered.forEach(a=>{
+      const isTest = a.filename.startsWith('test_');
+      const col = isTest ? '#a78bfa' : '#64CEFB';
+      const div = document.createElement('div');
+      div.style.cssText='margin-bottom:16px;border:1px solid rgba(255,255,255,0.07);border-radius:10px;overflow:hidden';
+      div.innerHTML=`
+        <div style="padding:8px 14px;background:rgba(255,255,255,0.03);border-bottom:1px solid rgba(255,255,255,0.06);display:flex;align-items:center;justify-content:space-between">
+          <span style="font-size:12px;font-weight:600;color:${col};font-family:monospace">${a.filename}</span>
+          <span style="font-size:10px;color:var(--muted)">${a.language}</span>
+        </div>
+        <pre style="margin:0;padding:14px;font-size:11px;font-family:monospace;line-height:1.6;color:rgba(255,255,255,0.85);background:rgba(0,0,0,0.3);overflow-x:auto;white-space:pre-wrap;word-break:break-word">${a.content.replace(/</g,'&lt;').replace(/>/g,'&gt;')}</pre>
+      `;
+      c.appendChild(div);
+    });
   }catch(e){}
 }
 
@@ -895,7 +937,7 @@ async function submitTask(){
   btn.disabled=true;btn.innerHTML='<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="animation:spin 1s linear infinite"><path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0"/></svg> Submitting...';
   document.getElementById('feed-events').innerHTML='';document.getElementById('feed-empty').style.display='flex';
   document.getElementById('tl-items').innerHTML='';document.getElementById('tl-empty').style.display='flex';document.getElementById('tl-wrap').style.display='none';
-  document.getElementById('bud-content').style.display='none';document.getElementById('bud-empty').style.display='flex';
+  document.getElementById('bud-content').style.display='none';document.getElementById('bud-empty').style.display='flex';document.getElementById('res-content').style.display='none';document.getElementById('res-content').innerHTML='';document.getElementById('res-empty').style.display='flex';
   document.getElementById('dag-card').style.display='none';
   try{
     const r=await fetch(`${API}/tasks`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({title,description:desc,language:'python',max_retries:3,budget_usd:2.0})});
