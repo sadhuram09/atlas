@@ -95,9 +95,11 @@ class Settings(BaseSettings):
     # ------------------------------------------------------------------
     cors_origins: list[str] = Field(
         default=[
-            "http://localhost:5173",   # Vite dev server
+            "http://localhost:5173",
             "http://localhost:3000",
-            "https://designpro.app",   # Production Vercel domain
+            "https://designpro.app",
+            "https://atlas-omega-two.vercel.app",
+            "https://atlas-pbc3asj08-sadhuram-team.vercel.app",
         ]
     )
 
