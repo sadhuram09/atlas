@@ -760,7 +760,7 @@ const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting)e.targ
 document.querySelectorAll('.reveal').forEach(el=>io.observe(el));
 
 // ── ATLAS BACKEND ──
-const API='http://localhost:8000';
+const API='https://atlas-v9x1.onrender.com';
 const KIND_C={'task.accepted':'#64CEFB','task.complexity_scored':'#a78bfa','task.plan_created':'#34d399','task.completed':'#22c55e','task.failed':'#ef4444','wave.started':'#f59e0b','wave.completed':'#34d399','subtask.started':'#64CEFB','subtask.passed':'#22c55e','subtask.failed':'#ef4444','subtask.retry':'#f97316','agent.called':'#a78bfa','agent.responded':'#34d399','subtask.verified':'#34d399'};
 let ws2=null,poll=null,curId=null;
 function kc(k){return KIND_C[k]||'#64CEFB'}
@@ -873,7 +873,7 @@ async function pollData(id){
 function connectWS(id){
   if(ws2)ws2.close();
   try{
-    ws2=new WebSocket(`ws://localhost:8000/ws/${id}`);
+    ws2=new WebSocket(`wss://atlas-v9x1.onrender.com/ws/${id}`);
     ws2.onopen=()=>{document.getElementById('ws-badge').style.display='flex'};
     ws2.onclose=()=>{document.getElementById('ws-badge').style.display='none'};
     ws2.onmessage=(e)=>{
