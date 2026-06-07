@@ -91,7 +91,19 @@ class FailureMemory:
         """
         MEMORY_DIR.mkdir(exist_ok=True)
 
-        # Try to load sentence-transformers
+        # Skip heavy ML model on free-tier (512MB RAM limit)
+        # Use keyword fallback instead — works fine for error matching
+        import os
+        if os.getenv("ENVIRONMENT", "development") == "production":
+            log.info(
+                "memory_embedder_skipped",
+                message="Production env detected — using keyword fallback to save RAM",
+            )
+            self._available = True
+            self._load_metadata()
+            return
+
+        # Try to load sentence-transformers (local dev only)
         try:
             from sentence_transformers import SentenceTransformer
             self._embedder = SentenceTransformer("all-MiniLM-L6-v2")
