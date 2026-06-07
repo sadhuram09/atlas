@@ -230,6 +230,12 @@ class DockerSandbox:
         Used when Docker Desktop is not installed/running.
         Safe enough for development — use Docker in production.
         """
+        # Ensure pytest is installed in the current Python environment
+        subprocess.run(
+            [sys.executable, "-m", "pip", "install", "pytest", "-q", "--no-cache-dir"],
+            capture_output=True, timeout=60,
+        )
+
         cmd = [
             sys.executable, "-m", "pytest",
             str(tmpdir / test_filename),
