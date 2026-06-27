@@ -102,8 +102,8 @@ class BudgetState(ATLASModel):
 
     @property
     def is_critical(self) -> bool:
-        """True if over 80% of budget consumed."""
-        return self.percent_used >= 80.0
+        """True if over 90% of budget consumed — matches Governor CRITICAL_THRESHOLD."""
+        return self.percent_used >= 90.0
 
     @property
     def is_exhausted(self) -> bool:

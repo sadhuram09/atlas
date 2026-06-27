@@ -45,9 +45,9 @@ log = get_logger(__name__)
 # Since Groq is free, we use token count as the budget proxy
 TOKENS_PER_USD = 500_000  # 500k tokens per $1 of declared budget
 
-# Budget thresholds for tier downgrade decisions
-DOWNGRADE_THRESHOLD = 0.70    # Downgrade at 70% budget used
-CRITICAL_THRESHOLD  = 0.90   # Force FAST tier at 90%
+# Budget threshold for tier downgrade decisions
+DOWNGRADE_THRESHOLD = 0.70    # Downgrade one step at 70% budget used
+# Critical threshold (force FAST) is defined on BudgetState.is_critical (90%)
 
 
 class Governor:
@@ -112,8 +112,8 @@ class Governor:
             downgraded = requested_tier != ModelTier.FAST
             reasoning = f"Budget exhausted ({percent_used:.0f}% used) — forced to FAST"
 
-        elif percent_used >= CRITICAL_THRESHOLD * 100:
-            # Critical — force FAST for everything
+        elif budget.is_critical:
+            # Critical (>=90%) — force FAST for everything
             approved_tier = ModelTier.FAST
             downgraded = requested_tier != ModelTier.FAST
             reasoning = f"Critical budget ({percent_used:.0f}% used) — forced to FAST"
