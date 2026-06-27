@@ -52,7 +52,6 @@ COPY --from=builder /app/.venv /app/.venv
 
 # Copy application code
 COPY atlas/ ./atlas/
-COPY main.py ./
 
 # Add .venv to PATH so `python` uses the venv Python
 ENV PATH="/app/.venv/bin:$PATH"
@@ -76,5 +75,5 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
 
 EXPOSE ${PORT}
 
-# Start the server
-CMD ["python", "main.py"]
+# Start the server — shell form so $PORT is expanded from environment
+CMD ["sh", "-c", "uvicorn atlas.api.app:app --host 0.0.0.0 --port ${PORT}"]
