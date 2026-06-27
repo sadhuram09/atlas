@@ -35,10 +35,14 @@ GROQ_API_KEY=gsk_your_actual_key_here
 ENVIRONMENT=production
 DEBUG=false
 LOG_LEVEL=INFO
-CORS_ORIGINS=["https://your-vercel-url.vercel.app"]
 ```
 
-> ⚠️ Copy the Railway service URL after first deploy — you'll need it for `CORS_ORIGINS`
+> ⚠️ Do **not** set `CORS_ORIGINS` as an environment variable. `cors_origins` in
+> `atlas/config.py` is the single source of truth for allowed origins. Because
+> `pydantic-settings` reads env vars at startup and uses them to override code
+> defaults, a `CORS_ORIGINS` env var silently wins over whatever is in `config.py`
+> — meaning code changes to `cors_origins` have no effect until the env var is
+> deleted from the dashboard. To add/remove an origin, edit `config.py` and deploy.
 
 ### 1c. Get Railway secrets for GitHub Actions
 
@@ -148,7 +152,7 @@ poetry run python main.py
 | `ENVIRONMENT`       | ✅ YES   | development   | production / staging / development |
 | `DEBUG`             | no       | false         | Enables debug logging              |
 | `LOG_LEVEL`         | no       | INFO          | DEBUG / INFO / WARNING / ERROR     |
-| `CORS_ORIGINS`      | ✅ YES   | localhost     | JSON array of allowed origins      |
+| `CORS_ORIGINS`      | ❌ NO    | —             | **Do not set.** Managed in `config.py`. Setting this env var silently overrides code. |
 | `PORT`              | no       | 8000          | Railway injects this automatically |
 | `DATABASE_URL`      | no       | local pg      | asyncpg connection string          |
 | `LANGSMITH_API_KEY` | no       | placeholder   | For LangSmith tracing              |
