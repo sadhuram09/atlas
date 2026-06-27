@@ -89,12 +89,12 @@ class TestPytestOutputParsing:
 
 
 class TestSandboxEmptyArtifacts:
-    def test_empty_artifacts_returns_failed_result(self, sandbox: DockerSandbox) -> None:
-        result = sandbox.run([])
+    async def test_empty_artifacts_returns_failed_result(self, sandbox: DockerSandbox) -> None:
+        result = await sandbox.run([])
         assert result.passed is False
         assert "No artifacts" in result.stderr
 
-    def test_no_test_file_returns_failed(self, sandbox: DockerSandbox) -> None:
+    async def test_no_test_file_returns_failed(self, sandbox: DockerSandbox) -> None:
         artifacts = [
             Artifact(
                 filename="solution.py",
@@ -102,6 +102,6 @@ class TestSandboxEmptyArtifacts:
                 content="def add(a, b): return a + b",
             )
         ]
-        result = sandbox.run(artifacts)
+        result = await sandbox.run(artifacts)
         assert result.passed is False
         assert "test file" in result.stderr.lower()

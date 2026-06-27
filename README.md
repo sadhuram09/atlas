@@ -219,6 +219,14 @@ atlas/
 
 Interactive docs: `http://localhost:8000/docs` (dev only)
 
+> **Dev note — hot-reload and in-flight tasks**: `main.py` starts uvicorn with
+> `reload=True` in non-production environments. Any file change in the project
+> directory triggers a full server restart, which `asyncio.CancelledError`s every
+> running pipeline. Tasks left mid-flight will stay in their last status (e.g.
+> `coding`) with no cleanup. Either set `ENVIRONMENT=production` to disable reload,
+> or use `--reload-exclude` to exclude non-source directories (e.g. test output,
+> generated files). This is expected uvicorn behaviour, not a bug.
+
 ---
 
 ## Tech Stack

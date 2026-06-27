@@ -15,7 +15,7 @@ from datetime import datetime, timezone
 from enum import StrEnum
 from typing import Any
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 # ---------------------------------------------------------------------------
@@ -90,6 +90,13 @@ class TaskRequest(ATLASModel):
     language: str = Field(default="python", description="Target programming language")
     max_retries: int = Field(default=3, ge=1, le=10)
     budget_usd: float = Field(default=0.50, gt=0, le=10.0, description="Max LLM cost")
+
+    @field_validator("description")
+    @classmethod
+    def description_not_whitespace(cls, v: str) -> str:
+        if not v.strip():
+            raise ValueError("description must contain non-whitespace content")
+        return v
 
 
 class SubTask(ATLASModel):

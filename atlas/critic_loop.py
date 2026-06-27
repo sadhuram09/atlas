@@ -199,7 +199,23 @@ class CriticLoop:
                 await asyncio.sleep(2)
 
         failed_tests = test_result.failed_tests if test_result else []
-        await self._fail(f"Exhausted {request.max_retries} retries. Last failure: {failed_tests}")
+        exit_code = test_result.exit_code if test_result else -1
+
+        _exit_msgs = {
+            2: "syntax error or bad import in generated code (pytest interrupted at collection)",
+            3: "pytest internal error during test run",
+            4: "pytest invocation error (bad arguments)",
+            5: "LLM did not generate any test functions (no tests collected)",
+        }
+
+        if failed_tests:
+            detail = f"failing tests: {failed_tests}"
+        elif exit_code in _exit_msgs:
+            detail = _exit_msgs[exit_code]
+        else:
+            detail = f"unknown failure (pytest exit code {exit_code})"
+
+        await self._fail(f"Exhausted {request.max_retries} retries — {detail}")
 
     async def _emit(self, event_type: EventType, data: dict) -> None:
         await ws_manager.broadcast(StreamEvent(event=event_type, task_id=self.task_id, data=data))

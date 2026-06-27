@@ -134,11 +134,12 @@ class TaskService:
         return updated
 
     async def add_artifact(self, task_id: str, artifact: Artifact) -> TaskDetail:
-        """Append a produced file to a task's artifacts."""
+        """Add or replace an artifact by filename — keeps latest version on retry (B2)."""
         task = await self.get(task_id)
+        existing = [a for a in task.artifacts if a.filename != artifact.filename]
         updated = task.model_copy(
             update={
-                "artifacts": [*task.artifacts, artifact],
+                "artifacts": [*existing, artifact],
                 "updated_at": datetime.now(timezone.utc),
             }
         )

@@ -78,8 +78,8 @@ class VerifierAgent(BaseAgent):
             files=[a.filename for a in artifacts],
         )
 
-        # Run in sandbox — this is the core gate
-        test_result: TestResult = self.sandbox.run(artifacts)
+        # Run in sandbox — this is the core gate (non-blocking via run_in_executor)
+        test_result: TestResult = await self.sandbox.run(artifacts)
 
         if test_result.passed:
             self.log.info(

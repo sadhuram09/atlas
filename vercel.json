@@ -3,18 +3,18 @@
   "name": "atlas-frontend",
   "builds": [
     {
-      "src": "*.html",
+      "src": "static/*.html",
       "use": "@vercel/static"
     }
   ],
   "routes": [
     {
       "src": "/dashboard",
-      "dest": "/designpro_atlas_world_class.html"
+      "dest": "/static/designpro_atlas_world_class.html"
     },
     {
       "src": "/",
-      "dest": "/designpro_helium_clone.html"
+      "dest": "/static/designpro_helium_clone.html"
     }
   ],
   "headers": [

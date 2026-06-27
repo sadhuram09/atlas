@@ -35,6 +35,7 @@ Windows note:
 
 from __future__ import annotations
 
+import asyncio
 import re
 import subprocess
 import sys
@@ -59,8 +60,6 @@ class DockerSandbox:
 
     Usage:
         sandbox = DockerSandbox()
-        available = await sandbox.is_available()
-
         result = await sandbox.run(artifacts)
         if result.passed:
             print("All tests passed!")
@@ -68,43 +67,43 @@ class DockerSandbox:
             print(result.stdout)  # pytest output with failure details
     """
 
-    # The Docker image used for execution.
-    # python:3.12-slim is official, trusted, and has pytest pre-installable.
     IMAGE = "python:3.12-slim"
+
+    # Cached per process lifetime — Docker availability doesn't change mid-run.
+    # None = not yet checked, True/False = result of first check (B3).
+    _docker_available: bool | None = None
 
     def __init__(self) -> None:
         self.timeout = settings.docker_timeout_seconds
         self.memory_limit = settings.docker_memory_limit
 
     def is_available(self) -> bool:
+        """Check Docker once and cache the result for the process lifetime (B3)."""
+        if DockerSandbox._docker_available is None:
+            try:
+                result = subprocess.run(
+                    ["docker", "info"],
+                    capture_output=True,
+                    timeout=5,
+                )
+                DockerSandbox._docker_available = result.returncode == 0
+            except (FileNotFoundError, subprocess.TimeoutExpired):
+                DockerSandbox._docker_available = False
+            if not DockerSandbox._docker_available:
+                log.warning(
+                    "docker_unavailable",
+                    message="Docker not running — using direct subprocess. "
+                            "Install Docker Desktop for full isolation.",
+                )
+        return DockerSandbox._docker_available
+
+    async def run(self, artifacts: list[Artifact]) -> TestResult:
         """
-        Check if Docker is running and reachable.
+        Write artifacts to a temp dir and run pytest, non-blocking (A1).
 
-        Called at startup — if Docker is unavailable, the sandbox
-        falls back to direct subprocess execution with a warning.
-        """
-        try:
-            result = subprocess.run(
-                ["docker", "info"],
-                capture_output=True,
-                timeout=5,
-            )
-            return result.returncode == 0
-        except (FileNotFoundError, subprocess.TimeoutExpired):
-            return False
-
-    def run(self, artifacts: list[Artifact]) -> TestResult:
-        """
-        Write artifacts to a temp dir and run pytest in Docker.
-
-        Args:
-            artifacts: List of Artifact objects (solution.py + test_solution.py)
-
-        Returns:
-            TestResult with passed/failed status and full pytest output.
-
-        Raises:
-            SandboxError: if Docker itself crashes (not if tests fail)
+        Fast-path guards (empty artifacts, no test file) are checked synchronously
+        before dispatching to the thread pool, so the event loop is never blocked
+        by subprocess calls.
         """
         if not artifacts:
             return TestResult(
@@ -115,7 +114,6 @@ class DockerSandbox:
                 duration_ms=0,
             )
 
-        # Find the test file — always starts with "test_"
         test_file = next(
             (a for a in artifacts if a.filename.startswith("test_")),
             None,
@@ -129,10 +127,22 @@ class DockerSandbox:
                 duration_ms=0,
             )
 
+        loop = asyncio.get_running_loop()
+        return await loop.run_in_executor(None, self._run_sync, artifacts)
+
+    def _run_sync(self, artifacts: list[Artifact]) -> TestResult:
+        """
+        Blocking execution — always called from the thread pool, never the event loop.
+        All subprocess.run calls here are safe because this runs in a worker thread.
+        """
+        test_file = next(
+            (a for a in artifacts if a.filename.startswith("test_")),
+            None,
+        )
+
         with tempfile.TemporaryDirectory() as tmpdir:
             tmp = Path(tmpdir)
 
-            # Write all artifacts to the temp directory
             for artifact in artifacts:
                 (tmp / artifact.filename).write_text(
                     artifact.content, encoding="utf-8"
@@ -147,15 +157,9 @@ class DockerSandbox:
 
             start = time.monotonic()
 
-            # Try Docker first, fall back to direct subprocess if unavailable
             if self.is_available():
                 result = self._run_in_docker(tmp, test_file.filename)
             else:
-                log.warning(
-                    "docker_unavailable",
-                    message="Docker not running — using direct subprocess. "
-                            "Install Docker Desktop for full isolation.",
-                )
                 result = self._run_direct(tmp, test_file.filename)
 
             duration_ms = int((time.monotonic() - start) * 1000)

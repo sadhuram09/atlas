@@ -30,7 +30,13 @@ from abc import ABC, abstractmethod
 from typing import Any
 
 import structlog
-from openai import AsyncOpenAI, APIStatusError, RateLimitError
+from openai import (
+    AsyncOpenAI,
+    APIConnectionError,
+    APIStatusError,
+    APITimeoutError,
+    RateLimitError,
+)
 from tenacity import (
     AsyncRetrying,
     retry_if_exception_type,
@@ -175,22 +181,40 @@ class BaseAgent(ABC):
 
         response = None
 
-        # Retry on rate limits with exponential backoff.
-        # Groq free tier allows 30 req/min — if you hit the limit,
-        # tenacity waits and retries automatically.
-        async for attempt in AsyncRetrying(
-            retry=retry_if_exception_type((RateLimitError, APIStatusError)),
-            stop=stop_after_attempt(4),
-            wait=wait_exponential(multiplier=1, min=3, max=60),
-            reraise=True,
-        ):
-            with attempt:
-                response = await self.groq_client.chat.completions.create(
-                    model=model,
-                    messages=messages,      # type: ignore[arg-type]
-                    max_tokens=max_tokens,
-                    temperature=temperature,
-                )
+        # Retry on transient errors with exponential backoff (B5).
+        # Groq free tier: 30 req/min — connection/timeout errors are included
+        # so a flaky network doesn't immediately fail the task.
+        try:
+            async for attempt in AsyncRetrying(
+                retry=retry_if_exception_type(
+                    (RateLimitError, APIStatusError, APIConnectionError, APITimeoutError)
+                ),
+                stop=stop_after_attempt(4),
+                wait=wait_exponential(multiplier=1, min=3, max=60),
+                reraise=True,
+            ):
+                with attempt:
+                    response = await self.groq_client.chat.completions.create(
+                        model=model,
+                        messages=messages,      # type: ignore[arg-type]
+                        max_tokens=max_tokens,
+                        temperature=temperature,
+                    )
+        except RateLimitError:
+            raise AgentError(
+                "Groq rate limit reached after retries — no budget consumed; wait 60s then retry",
+                self.role, self.task_id,
+            ) from None
+        except (APIConnectionError, APITimeoutError) as exc:
+            raise AgentError(
+                f"Groq API unreachable ({type(exc).__name__}) — no budget consumed; safe to retry",
+                self.role, self.task_id,
+            ) from exc
+        except APIStatusError as exc:
+            raise AgentError(
+                f"Groq API error (HTTP {exc.status_code}) after retries — partial budget may have been consumed",
+                self.role, self.task_id,
+            ) from exc
 
         duration = (time.monotonic() - start) * 1000
         usage = response.usage  # type: ignore[union-attr]

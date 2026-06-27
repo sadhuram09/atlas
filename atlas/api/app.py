@@ -16,7 +16,7 @@ import asyncio
 from contextlib import asynccontextmanager
 from typing import AsyncGenerator
 
-from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, HTTPException, Request, Response, WebSocket, WebSocketDisconnect
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
@@ -63,6 +63,11 @@ async def lifespan(app: FastAPI) -> AsyncGenerator[None, None]:
 
 
 def create_app() -> FastAPI:
+    # Keyed by task_id — lets DELETE cancel a running pipeline (A2).
+    _pipeline_tasks: dict[str, asyncio.Task] = {}
+    # Cap concurrent pipelines to settings.max_concurrent_tasks (B4).
+    _pipeline_semaphore = asyncio.Semaphore(settings.max_concurrent_tasks)
+
     app = FastAPI(
         title="ATLAS API",
         description="Self-healing multi-agent code assistant — Phase 2",
@@ -174,12 +179,18 @@ def create_app() -> FastAPI:
         """
         svc: TaskService = request.app.state.task_service
         response = await svc.create(body)
-        log.info("api_task_created", task_id=response.task_id)
+        task_id = response.task_id
+        log.info("api_task_created", task_id=task_id)
 
-        # Fire Pipeline as background task — HTTP returns immediately
-        pipeline = Pipeline(task_id=response.task_id, task_service=svc)
-        asyncio.create_task(pipeline.run(body))
+        pipeline = Pipeline(task_id=task_id, task_service=svc)
 
+        async def _guarded() -> None:
+            async with _pipeline_semaphore:   # B4: cap concurrency
+                await pipeline.run(body)
+            _pipeline_tasks.pop(task_id, None)
+
+        handle = asyncio.create_task(_guarded())
+        _pipeline_tasks[task_id] = handle     # A2: store for cancellation
         return response
 
     @app.get("/tasks", response_model=list[TaskDetail], tags=["Tasks"])
@@ -213,8 +224,8 @@ def create_app() -> FastAPI:
             "event_count": len(events),
         }
 
-    @app.delete("/tasks/{task_id}", status_code=200, tags=["Tasks"])
-    async def cancel_task(request: Request, task_id: str) -> dict:
+    @app.delete("/tasks/{task_id}", status_code=204, tags=["Tasks"])
+    async def cancel_task(request: Request, task_id: str) -> Response:
         svc: TaskService = request.app.state.task_service
         task = await svc.get(task_id)
         if task.status in ("completed", "failed"):
@@ -222,8 +233,12 @@ def create_app() -> FastAPI:
                 status_code=400,
                 detail=f"Cannot cancel task in status '{task.status}'",
             )
+        # A2: cancel the running asyncio task so the pipeline actually stops
+        handle = _pipeline_tasks.pop(task_id, None)
+        if handle and not handle.done():
+            handle.cancel()
         await svc.update_status(task_id, "failed", error="Cancelled by user")
-        return {"cancelled": task_id}
+        return Response(status_code=204)
 
     # ------------------------------------------------------------------
     # WebSocket
