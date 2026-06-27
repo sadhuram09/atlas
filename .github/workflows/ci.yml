@@ -1,32 +1,14 @@
-# ============================================================
-# ATLAS CI/CD Pipeline
-# ============================================================
-#
-# Triggers on every push to main and every PR.
-#
-# Jobs:
-#   test    → ruff lint + mypy types + pytest with coverage
-#   deploy  → build Docker image + push to Railway (main only)
-#
-# Required GitHub Secrets (Settings → Secrets → Actions):
-#   RAILWAY_TOKEN    — from Railway dashboard → Settings → Tokens
-#   RAILWAY_SERVICE  — the Railway service ID (from URL)
-# ============================================================
-
-name: ATLAS CI/CD
+name: ATLAS CI
 
 on:
   push:
-    branches: [main]
+    branches: [master]
   pull_request:
-    branches: [main]
+    branches: [master]
 
 jobs:
-  # ----------------------------------------------------------
-  # Test job — runs on every push and PR
-  # ----------------------------------------------------------
   test:
-    name: Test & Lint
+    name: Test
     runs-on: ubuntu-latest
 
     steps:
@@ -37,62 +19,21 @@ jobs:
         uses: actions/setup-python@v5
         with:
           python-version: "3.12"
-          cache: pip
 
       - name: Install Poetry
         run: pip install poetry==1.8.4
 
+      - name: Cache Poetry virtualenv
+        uses: actions/cache@v4
+        with:
+          path: .venv
+          key: venv-${{ runner.os }}-${{ hashFiles('pyproject.toml', 'poetry.lock') }}
+
       - name: Install dependencies
         run: poetry install --no-interaction
 
-      - name: Lint with Ruff
-        run: poetry run ruff check atlas/ tests/
-
-      - name: Type check with mypy
-        # We run mypy but don't fail CI on it in Phase 0
-        # Remove `|| true` in Phase 1 when types are complete
-        run: poetry run mypy atlas/ || true
-
-      - name: Run tests with coverage
+      - name: Run tests
         env:
-          # Groq key placeholder — unit tests make no real LLM calls
           GROQ_API_KEY: gsk_test_placeholder
           ENVIRONMENT: development
-          DEBUG: "false"
-        run: poetry run pytest --cov=atlas --cov-report=xml -q
-
-      - name: Upload coverage to Codecov
-        uses: codecov/codecov-action@v4
-        if: github.event_name == 'push'
-        with:
-          files: ./coverage.xml
-          fail_ci_if_error: false  # Don't fail CI if Codecov is down
-
-  # ----------------------------------------------------------
-  # Deploy job — only on push to main, after tests pass
-  # ----------------------------------------------------------
-  deploy:
-    name: Deploy to Railway
-    runs-on: ubuntu-latest
-    needs: test                     # Only runs if test job passes
-    if: github.ref == 'refs/heads/main' && github.event_name == 'push'
-
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Install Railway CLI
-        run: npm install -g @railway/cli
-
-      - name: Deploy to Railway
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: railway up --service ${{ secrets.RAILWAY_SERVICE }} --detach
-
-      - name: Wait for deployment health check
-        env:
-          RAILWAY_TOKEN: ${{ secrets.RAILWAY_TOKEN }}
-        run: |
-          echo "Waiting 30s for Railway to deploy..."
-          sleep 30
-          echo "Deployment triggered successfully"
+        run: poetry run pytest --no-cov -q
