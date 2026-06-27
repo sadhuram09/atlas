@@ -538,7 +538,7 @@ footer{background:var(--canvas);border-top:0.5px solid var(--hairline-soft);padd
 </footer>
 
 <script>
-const API = 'http://localhost:8000';
+const API = 'https://atlas-v9x1.onrender.com';
 let ws = null;
 let pollTimer = null;
 let currentTaskId = null;
@@ -742,7 +742,7 @@ async function pollData(taskId){
 function connectWS(taskId){
   if(ws)ws.close();
   try{
-    ws=new WebSocket(`ws://localhost:8000/ws/${taskId}`);
+    ws=new WebSocket(`wss://atlas-v9x1.onrender.com/ws/${taskId}`);
     ws.onopen=()=>{
       document.getElementById('ws-badge').style.display='flex';
     };

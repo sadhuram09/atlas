@@ -57,3 +57,5 @@ dist/
 # --- Runtime / generated data ---
 atlas_memory/
 *.zip
+
+.vercel
