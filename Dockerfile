@@ -1,4 +1,4 @@
-# ============================================================
+﻿# ============================================================
 # ATLAS Dockerfile — multi-stage build
 # ============================================================
 #
@@ -8,7 +8,7 @@
 # Why multi-stage?
 #   The builder installs gcc, poetry, and build tools (~800MB).
 #   The runtime copies the venv + code only (~200MB).
-#   Railway charges by memory — smaller = faster + cheaper.
+#   Render charges by memory — smaller = faster + cheaper.
 # ============================================================
 
 # --- Stage 1: Builder ---
@@ -57,11 +57,11 @@ COPY atlas/ ./atlas/
 ENV PATH="/app/.venv/bin:$PATH"
 ENV PYTHONPATH="/app"
 
-# Don't buffer Python output — important for Railway log streaming
+# Don't buffer Python output — important for Render log streaming
 ENV PYTHONUNBUFFERED=1
 ENV PYTHONDONTWRITEBYTECODE=1
 
-# Railway injects PORT — default to 8000
+# Render injects PORT — default to 8000
 ENV PORT=8000
 
 # Non-root user for security
@@ -69,7 +69,7 @@ RUN useradd --create-home --shell /bin/bash atlas \
     && chown -R atlas:atlas /app
 USER atlas
 
-# Health check — Railway probes this
+# Health check — Render probes this
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
     CMD python -c "import httpx; httpx.get('http://localhost:${PORT}/health').raise_for_status()"
 
